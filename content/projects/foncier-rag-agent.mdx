@@ -1,0 +1,46 @@
+---
+title: "RAG Assistant for a Foncier-Sector Client"
+slug: "foncier-rag-agent"
+summary: "A Qdrant + LangChain/LangGraph agent that answers questions from a large corpus of land-registry documents, with citation-backed answers."
+tags: ["RAG", "LangChain", "LangGraph", "Qdrant", "LLM agents"]
+client: "Foncier-sector company (France)"
+clientVisible: true
+year: 2024
+role: "AI Consultant (end-to-end)"
+tech: ["Python", "LangChain", "LangGraph", "Qdrant", "Voyage AI", "Anthropic Claude", "Docker"]
+status: "Completed"
+---
+
+## Context
+
+A land-administration (foncier) company managed a large and growing corpus of property and parcel documents. Staff spent hours manually searching and cross-referencing these records to answer internal and customer questions.
+
+The client wanted a system that could answer natural-language questions about the corpus with **traceable, citation-backed answers** — not just a search box.
+
+## What I built
+
+I designed and shipped a **retrieval-augmented generation (RAG) agent** over the document corpus:
+
+- **Chunking & indexing**: documents parsed, split into semantically coherent chunks, embedded, and stored in **Qdrant** as the vector store.
+- **Retrieval**: top-k vector search with metadata filtering to scope results to the right document types and dates.
+- **Agent**: a **LangChain/LangGraph** agent that plans between retrieval, reading source documents, and composing answers, keeping the model on-task with a small toolset.
+- **Answering**: final answers with inline references back to the source chunks, so every claim could be verified.
+
+## Results
+
+- Reduced the time to answer a typical document question from **20+ minutes to under a minute**.
+- Citations meant staff could verify answers instead of re-searching manually, which was essential for this regulated industry.
+- The architecture became a reusable blueprint the client could repurpose for other corpora.
+
+## Confidentiality note
+
+The underlying technical and data specifics of this regulated project stay intentionally general here. Client name omitted at request of engagement — the same posture used across my other case studies.
+
+## Stack highlights
+
+- **Qdrant** as the vector database (hosted)
+- **Voyage AI** for embeddings, **Anthropic Claude** for generation
+- **LangGraph** for the agentic control flow
+- **Docker** for reproducible deployment for the client's infrastructure
+
+The exact same RAG pattern powers the chat widget on this very site.

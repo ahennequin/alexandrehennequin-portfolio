@@ -1,26 +1,64 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --color-ink: #12161b;
+  --color-paper: #f6f5f1;
+  --color-signal: #1c7c8c;
+  --color-graphite: #6b6f73;
+  --color-ember: #c1622c;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-ink: var(--color-ink);
+  --color-paper: var(--color-paper);
+  --color-signal: var(--color-signal);
+  --color-graphite: var(--color-graphite);
+  --color-ember: var(--color-ember);
+
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-spectral);
+  --font-mono: var(--font-plex-mono);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --color-ink: #f6f5f1;
+    --color-paper: #12161b;
+    --color-signal: #2a94a6;
+    --color-graphite: #a3a8ae;
+    --color-ember: #d9864f;
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+}
+
+@layer components {
+  .mdx {
+    @apply text-[17px] leading-relaxed;
+  }
+  .mdx h2 {
+    @apply mt-10 mb-4 font-display text-2xl font-semibold;
+  }
+  .mdx h3 {
+    @apply mt-8 mb-3 font-display text-xl font-semibold;
+  }
+  .mdx p {
+    @apply my-4;
+  }
+  .mdx ul {
+    @apply my-4 space-y-2;
+  }
+  .mdx li {
+    @apply flex gap-3;
+  }
+  .mdx li::before {
+    content: "";
+    @apply mt-[9px] block h-1 w-1 shrink-0 rounded-full bg-signal;
+  }
+  .mdx strong {
+    @apply font-semibold text-signal;
+  }
 }

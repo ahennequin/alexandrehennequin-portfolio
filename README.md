@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Alexandre Hennequin — Portfolio
 
-## Getting Started
+Personal freelance portfolio site for an AI/Data Science consultant, built with **Next.js** (App Router) and deployed on **Vercel**. Includes a RAG-powered chat widget that answers visitor questions about the author's CV and projects, using retrieval over the site's own content.
 
-First, run the development server:
+Architecture, decisions, and the brand system live in [`SYSTEM_DESIGN.md`](./SYSTEM_DESIGN.md) and [`BRAND.md`](./BRAND.md). Read both before changing things.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Stack
+
+- **Frontend / hosting**: Next.js (App Router) + Tailwind CSS, deployed to Vercel (static pages + serverless API routes).
+- **Chat backend**: `app/api/chat` serverless route — embeds the query, retrieves from the vector store, builds the prompt, and streams an Anthropic Claude response. Server-side only.
+- **Vector store**: Qdrant Cloud (hosted), accessed via `QDRANT_CLUSTER_ENDPOINT` + `QDRANT_API_KEY`.
+- **Embeddings**: Voyage AI, model `voyage-4` (same model at ingestion and query time).
+- **Content source of truth**: `content/cv.json` + `content/projects/*.mdx` — feed both the rendered pages and the embedding index.
+
+## Environment variables
+
+Create a `.env` file locally (values from the Vercel dashboard in production — never commit them):
+
+```
+ANTHROPIC_API_KEY=sk-ant-...
+QDRANT_CLUSTER_ENDPOINT=https://xxxxx.qdrant.io
+QDRANT_API_KEY=qdrant-...
+VOYAGEAI_API_KEY=pa-...
+# Optional: override the chat model (defaults to claude-3-5-haiku-latest)
+# CLAUDE_MODEL=claude-3-5-sonnet-latest
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+All four keys are Vercel environment variables. Nothing is exposed to the browser; there are no `NEXT_PUBLIC_*` secrets.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Local development
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm install
+npm run ingest      # build the embedding index in Qdrant (needs .env with Qdrant + Voyage keys)
+npm run dev         # http://localhost:3000
+```
 
-## Learn More
+`npm run ingest` chunks `content/`, embeds each chunk with `voyage-4`, recreates the `site_content` collection, and upserts the vectors. Re-run it after editing any content file so the assistant stays in sync with the site.
 
-To learn more about Next.js, take a look at the following resources:
+## The chat assistant
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The floating widget (bottom-right) is a live demo of the author's RAG/agentic skillset — the same pattern described in the foncier case study. Flow inside `app/api/chat/route.ts`:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Embed the visitor's query (`voyage-4`, same as ingestion).
+2. Retrieve the top-5 chunks from Qdrant (`site_content` collection).
+3. Build the system prompt (identity, CV/projects scope restriction, prompt-injection resistance, confidentiality posture) + retrieved context + conversation history.
+4. Stream the Claude response back to the widget.
 
-## Deploy on Vercel
+Chat history is kept in client-side React state only — no visitor data is persisted server-side.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Rate limiting & cost guardrails
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `/api/chat` limits each IP to 20 requests / minute via an in-memory sliding window (`lib/rateLimit.ts`). This is per-function-instance state — adequate for a personal site. For hard guarantees across instances, swap the store for Upstash Redis (free tier).
+- Set a **budget alert** in the Anthropic console (Console → Cost → Budgets) to cap spend before shipping publicly. Configure this in the Anthropic dashboard, not in this repo.
+
+## Deploy to Vercel
+
+1. Push to the repo and import into Vercel (or `vercel deploy`).
+2. Add the four env vars above in Project → Settings → Environment Variables.
+3. Run `npm run ingest` once (with the same env vars) to populate the vector index — from your machine or a CI job.
+4. Deploy. `app/api/chat` is the only serverless route; everything else is static.
+
+## Content
+
+- `content/cv.json` — structured CV data (experience, skills, education, languages, contact).
+- `content/projects/*.mdx` — case studies with frontmatter (client, year, role, stack) and markdown body. Confidentiality posture for regulated client work mirrors the Malt portfolio case studies.

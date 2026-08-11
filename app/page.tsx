@@ -1,69 +1,98 @@
-import Image from "next/image";
+import Link from "next/link";
+import { getCv, getProjects } from "@/lib/content";
+import WaveformDivider from "@/components/WaveformDivider";
 
-export default function Home() {
+export default async function Home() {
+  const cv = await getCv();
+  const projects = await getProjects();
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className="mx-auto max-w-4xl px-6">
+      <section className="py-20 sm:py-28">
+        <p className="font-mono text-xs uppercase tracking-[0.2em] text-signal">
+          AI Consultant · Data Scientist · Data Engineer
+        </p>
+        <h1 className="mt-6 font-display text-5xl font-semibold leading-tight tracking-tight sm:text-6xl">
+          {cv.name}
+        </h1>
+        <p className="mt-6 max-w-xl font-display text-xl leading-relaxed text-graphite sm:text-2xl">
+          I design and build LLM-based systems, RAG pipelines, and data
+          platforms for clients who need{" "}
+          <span className="text-ember">production-grade</span> AI — not demos.
+        </p>
+        <WaveformDivider className="mt-10 text-signal" />
+        <p className="mt-10 max-w-2xl text-lg leading-relaxed">{cv.summary}</p>
+        <p className="mt-8 font-mono text-xs uppercase tracking-[0.15em] text-graphite">
+          {cv.location}
+        </p>
+        <div className="mt-10 flex flex-wrap gap-3">
+          <Link
+            href="/cv"
+            className="border border-signal px-5 py-2.5 text-sm font-medium text-signal transition-colors hover:bg-signal hover:text-paper"
           >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            View CV
+          </Link>
+          <Link
+            href="/projects"
+            className="border border-graphite/30 px-5 py-2.5 text-sm font-medium text-ink transition-colors hover:border-ink"
           >
-            Documentation
-          </a>
+            Projects
+          </Link>
         </div>
-      </main>
+      </section>
+
+      <section className="border-t border-graphite/20 py-16 sm:py-20">
+        <h2 className="font-mono text-xs uppercase tracking-[0.2em] text-signal">
+          Focus areas
+        </h2>
+        <div className="mt-8 grid gap-10 sm:grid-cols-3">
+          {cv.skills.slice(0, 3).map((category) => (
+            <div key={category.category}>
+              <h3 className="font-display text-lg font-semibold">
+                {category.category}
+              </h3>
+              <ul className="mt-3 space-y-1.5 font-mono text-xs text-graphite">
+                {category.items.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="border-t border-graphite/20 py-16 sm:py-20">
+        <div className="flex items-end justify-between">
+          <h2 className="font-mono text-xs uppercase tracking-[0.2em] text-signal">
+            Selected projects
+          </h2>
+          <Link
+            href="/projects"
+            className="font-mono text-xs text-graphite hover:text-signal"
+          >
+            all projects →
+          </Link>
+        </div>
+        <div className="mt-8 grid gap-6 sm:grid-cols-2">
+          {projects.slice(0, 2).map((project) => (
+            <Link
+              key={project.frontmatter.slug}
+              href={`/projects/${project.frontmatter.slug}`}
+              className="group border border-graphite/20 p-6 transition-colors hover:border-signal"
+            >
+              <p className="font-mono text-[11px] uppercase tracking-[0.15em] text-graphite">
+                {project.frontmatter.client} · {project.frontmatter.year}
+              </p>
+              <h3 className="mt-3 font-display text-xl font-semibold group-hover:text-signal">
+                {project.frontmatter.title}
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-graphite">
+                {project.frontmatter.summary}
+              </p>
+            </Link>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

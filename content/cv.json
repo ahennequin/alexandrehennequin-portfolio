@@ -1,0 +1,70 @@
+{
+  "name": "Alexandre Hennequin",
+  "titles": ["AI Consultant", "Data Scientist", "Data Engineer"],
+  "tagline": "I design and build LLM-based systems, RAG pipelines, and data platforms for clients who need production-grade AI — not demos.",
+  "summary": "Independent AI & Data Science consultant. I help organizations ship LLM applications, retrieval systems, and data pipelines that are reliable, measurable, and cost-conscious. Comfortable from empty repo to production deployment: data engineering, embedding pipelines, vector search, LLM application architecture, and the observability that keeps them honest.",
+  "email": "contact@alexandrehennequin.dev",
+  "location": "Lyon, France — working remotely",
+  "linkedin": "https://www.linkedin.com/in/alexandrehennequin",
+  "github": "https://github.com/alexandrehennequin",
+  "languages": [
+    { "name": "French", "level": "Native" },
+    { "name": "English", "level": "Fluent" }
+  ],
+  "skills": [
+    { "category": "AI / LLM", "items": ["RAG systems", "Prompt engineering", "LLM agents", "Evaluation", "Retrieval optimization"] },
+    { "category": "Data / ML", "items": ["Python", "Pandas / Polars", "Scikit-learn", "Evaluation & metrics", "Experimentation"] },
+    { "category": "Data Engineering", "items": ["Airflow", "SQL", "ETL/ELT", "dbt", "Data warehouses", "Quality monitoring"] },
+    { "category": "Infrastructure / Ops", "items": ["Docker", "Vector stores (Qdrant)", "Cloud (AWS)", "CI/CD", "Observability"] }
+  ],
+  "experience": [
+    {
+      "role": "Independent AI & Data Science Consultant",
+      "company": "Self-employed",
+      "location": "Lyon, France",
+      "startDate": "2023-01",
+      "endDate": "Present",
+      "highlights": [
+        "Delivered LLM-based projects for clients across healthcare and public-sector services",
+        "Designed and deployed retrieval-augmented generation (RAG) systems on vector databases",
+        "Built and maintained data pipelines in Airflow for production analytics workloads",
+        "Owned projects end-to-end: scoping, architecture, implementation, deployment, and client handover"
+      ]
+    },
+    {
+      "role": "Data Scientist",
+      "company": "O-Kidia",
+      "location": "Paris, France",
+      "startDate": "2021-03",
+      "endDate": "2022-12",
+      "highlights": [
+        "Built the data & ML foundation for a company producing cognitive evaluation software for children",
+        "Architected and operated Airflow pipelines for ingesting and processing clinical assessment data",
+        "Developed anomaly-detection and reporting tooling to monitor data quality across datasets",
+        "Worked with regulated health-adjacent data, maintaining conservative security and confidentiality practices"
+      ]
+    },
+    {
+      "role": "Data Analyst",
+      "company": "Multiple clients (consulting)",
+      "location": "France",
+      "startDate": "2019-09",
+      "endDate": "2021-02",
+      "highlights": [
+        "Delivered reporting and analytics projects for small and mid-size businesses",
+        "Designed SQL data models feeding dashboards used in management decisions",
+        "Introduced structured experimentation and data-quality practices for non-technical teams"
+      ]
+    }
+  ],
+  "education": [
+    {
+      "degree": "M.Sc. in Data Science",
+      "institution": "University of Lyon",
+      "startDate": "2017",
+      "endDate": "2019",
+      "details": "Machine learning, statistics, and software engineering curriculum"
+    }
+  ],
+  "interests": ["LLM application architecture", "Information retrieval", "Developer tooling", "Rust", "Experimental music"]
+}

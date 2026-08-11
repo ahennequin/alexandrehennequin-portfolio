@@ -1,0 +1,44 @@
+---
+title: "Airflow Data Pipeline & ML Foundation — O-Kidia"
+slug: "o-kidia-airflow-pipeline"
+summary: "Production Airflow platform for ingesting, validating, and monitoring clinical cognitive-assessment data, plus ML models powering the product."
+tags: ["Airflow", "ETL", "Python", "Data Engineering", "Monitoring"]
+client: "O-Kidia"
+clientVisible: true
+year: 2022
+role: "Data Scientist"
+tech: ["Python", "Airflow", "PostgreSQL", "Docker", "Scikit-learn"]
+status: "Completed"
+---
+
+## Context
+
+O-Kidia builds software that assesses children's cognitive skills through interactive tasks, primarily for education and healthcare professionals. As the products scaled, assessment data accumulated faster than the existing manual processes could handle.
+
+The company needed a reliable, monitored pipeline to **ingest, clean, and expose** this data to the teams building the product and reporting to customers.
+
+## What I built
+
+I owned the data & ML foundation:
+
+- **Airflow platform**: production DAGs scheduling ingestion and transformation jobs, with retries, alerting, and a reproducible Docker-based deployment.
+- **ETL jobs**: parsing raw assessment exports, cleaning them, and loading standardized tables into PostgreSQL.
+- **Data-quality monitoring**: anomaly detection and drift checks over incoming data, so regressions surfaced quickly rather than silently corrupting reports.
+- **ML models**: statistical models over the assessment data feeding product features (readiness scores, anomaly flags).
+
+## Results
+
+- Assessment data flowed into analytics **automatically and on schedule**, removing a manual bottleneck.
+- Data-quality checks cut silent errors that previously required re-processing entire batches.
+- The pipeline pattern was reused for new assessment formats as the product line grew.
+
+## Confidentiality note
+
+Work involved health-adjacent, regulated data. Names and precise technical specifics are kept general here; the approach — conservative access controls, minimal data exposure, clean separation between systems — is what I'd apply to any regulated engagement.
+
+## Stack highlights
+
+- **Airflow** for orchestration and scheduling
+- **PostgreSQL** as the analytical store
+- **Docker** for reproducible pipeline environments
+- **Scikit-learn** for the ML components
