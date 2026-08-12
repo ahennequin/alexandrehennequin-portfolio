@@ -1,0 +1,28 @@
+name: Ingest
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "content/**"
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Run ingestion
+        env:
+          VOYAGEAI_API_KEY: ${{ secrets.VOYAGEAI_API_KEY }}
+          QDRANT_CLUSTER_ENDPOINT: ${{ secrets.QDRANT_CLUSTER_ENDPOINT }}
+          QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
+        run: npm run ingest

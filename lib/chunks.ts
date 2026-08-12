@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { getCv, getProjects } from "./content.ts";
+import { LOCALES, type Locale } from "./i18n.ts";
 
 export type Chunk = {
   id: string;
@@ -10,6 +11,7 @@ export type Chunk = {
     title: string;
     slug?: string;
     key?: string;
+    lang: Locale;
   };
 };
 
@@ -41,16 +43,19 @@ function splitMdxSections(content: string): MdxSection[] {
     }
   }
   if (current) sections.push(current);
-  return sections.filter((s) => s.body.trim().length > 0);
+  return sections
+    .filter((s) => s.body.trim().length > 0)
+    .map((s) => ({ ...s, body: s.body.replace(/<\/?[a-zA-Z][^>]*>/g, "") }));
 }
 
-export async function buildChunks(): Promise<Chunk[]> {
-  const cv = await getCv();
-  const projects = await getProjects();
+async function buildChunksForLocale(locale: Locale): Promise<Chunk[]> {
+  const cv = await getCv(locale);
+  const projects = await getProjects(locale);
   const chunks: Chunk[] = [];
 
+  const overviewKey = `${locale}-cv-overview`;
   chunks.push({
-    id: uuidFromKey("cv-overview"),
+    id: uuidFromKey(overviewKey),
     text: [
       cv.name,
       cv.titles.join(", "),
@@ -62,30 +67,36 @@ export async function buildChunks(): Promise<Chunk[]> {
       source: "cv",
       section: "Overview",
       title: `${cv.name} — Overview`,
-      key: "cv-overview",
+      key: overviewKey,
+      lang: locale,
     },
   });
 
   for (const exp of cv.experience) {
-    const key = `cv-exp-${slugify(exp.company)}`;
+    const key = `${locale}-cv-exp-${slugify(exp.company)}`;
     chunks.push({
       id: uuidFromKey(key),
       text: [
         `${exp.role} at ${exp.company}, ${exp.location}`,
         `Period: ${exp.startDate} — ${exp.endDate}.`,
-        ...exp.highlights.map((h) => `- ${h}`),
+        `Challenge: ${exp.challenge}`,
+        "Actions:",
+        ...exp.actions.map((a) => `- ${a}`),
+        "Impact:",
+        ...exp.impact.map((i) => `- ${i}`),
       ].join("\n"),
       metadata: {
         source: "cv",
         section: "Experience",
         title: `${exp.role} — ${exp.company}`,
         key,
+        lang: locale,
       },
     });
   }
 
   for (const skill of cv.skills) {
-    const key = `cv-skills-${slugify(skill.category)}`;
+    const key = `${locale}-cv-skills-${slugify(skill.category)}`;
     chunks.push({
       id: uuidFromKey(key),
       text: `Skills — ${skill.category}: ${skill.items.join(", ")}.`,
@@ -94,12 +105,13 @@ export async function buildChunks(): Promise<Chunk[]> {
         section: "Skills",
         title: `Skills — ${skill.category}`,
         key,
+        lang: locale,
       },
     });
   }
 
   for (const edu of cv.education) {
-    const key = `cv-edu-${slugify(edu.institution)}`;
+    const key = `${locale}-cv-edu-${slugify(edu.institution)}`;
     chunks.push({
       id: uuidFromKey(key),
       text: `${edu.degree}, ${edu.institution}, ${edu.startDate} — ${edu.endDate}. ${edu.details}.`,
@@ -108,12 +120,14 @@ export async function buildChunks(): Promise<Chunk[]> {
         section: "Education",
         title: `${edu.degree} — ${edu.institution}`,
         key,
+        lang: locale,
       },
     });
   }
 
+  const languagesKey = `${locale}-cv-languages`;
   chunks.push({
-    id: uuidFromKey("cv-languages"),
+    id: uuidFromKey(languagesKey),
     text: `Languages: ${cv.languages
       .map((l) => `${l.name} (${l.level})`)
       .join(", ")}.`,
@@ -121,31 +135,35 @@ export async function buildChunks(): Promise<Chunk[]> {
       source: "cv",
       section: "Languages",
       title: "Languages",
-      key: "cv-languages",
+      key: languagesKey,
+      lang: locale,
     },
   });
 
+  const interestsKey = `${locale}-cv-interests`;
   chunks.push({
-    id: uuidFromKey("cv-interests"),
+    id: uuidFromKey(interestsKey),
     text: `Interests: ${cv.interests.join(", ")}.`,
     metadata: {
       source: "cv",
       section: "Interests",
       title: "Interests",
-      key: "cv-interests",
+      key: interestsKey,
+      lang: locale,
     },
   });
 
   for (const project of projects) {
     const m = project.frontmatter;
     const clientLabel = m.clientVisible ? m.client : "Confidential";
-    const overviewKey = `project-${m.slug}-overview`;
+    const orgLabel = m.kind === "research" ? "Affiliation" : "Client";
+    const overviewKey = `${locale}-project-${m.slug}-overview`;
 
     chunks.push({
       id: uuidFromKey(overviewKey),
       text: [
         `${m.title}.`,
-        `Client: ${clientLabel}. Year: ${m.year}. Role: ${m.role}. Status: ${m.status}.`,
+        `${orgLabel}: ${clientLabel}. Year: ${m.year}. Role: ${m.role}. Status: ${m.status}.`,
         `Stack: ${m.tech.join(", ")}.`,
         m.summary,
       ].join("\n"),
@@ -155,11 +173,12 @@ export async function buildChunks(): Promise<Chunk[]> {
         title: m.title,
         slug: m.slug,
         key: overviewKey,
+        lang: locale,
       },
     });
 
     for (const section of splitMdxSections(project.content)) {
-      const key = `project-${m.slug}-${slugify(section.heading)}`;
+      const key = `${locale}-project-${m.slug}-${slugify(section.heading)}`;
       chunks.push({
         id: uuidFromKey(key),
         text: `${m.title} — ${section.heading}.\n\n${section.body}`,
@@ -169,10 +188,16 @@ export async function buildChunks(): Promise<Chunk[]> {
           title: m.title,
           slug: m.slug,
           key,
+          lang: locale,
         },
       });
     }
   }
 
   return chunks;
+}
+
+export async function buildChunks(): Promise<Chunk[]> {
+  const perLocale = await Promise.all(LOCALES.map(buildChunksForLocale));
+  return perLocale.flat();
 }

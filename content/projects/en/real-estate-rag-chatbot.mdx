@@ -1,0 +1,44 @@
+---
+title: "Real-Estate RAG Assistant & Chatbot"
+slug: "real-estate-rag-chatbot"
+summary: "A RAG-powered assistant and chatbot that answers questions from real-estate documents with citation-backed responses."
+tags: ["RAG", "LangChain", "Qdrant", "Chatbot", "LLM"]
+client: "Real-estate client (France)"
+clientVisible: true
+year: 2025
+role: "AI Consultant (end-to-end)"
+tech: ["Python", "LangChain", "Qdrant"]
+status: "Completed"
+---
+
+## Situation
+
+A real-estate company handled a large volume of property documents — listings, technical diagnostics, legal records. Staff repeatedly searched and cross-referenced these documents to answer questions from clients and internal teams.
+
+## Task
+
+The client wanted a natural-language assistant that could answer questions about the corpus quickly and with verifiable sources, replacing manual lookup work.
+
+## Action
+
+I designed and delivered a **retrieval-augmented generation (RAG)** system with a chatbot front end:
+
+- **Indexing**: property documents parsed, chunked, embedded, and stored in <Skill>Qdrant</Skill>.
+- **Retrieval**: top-k vector search with metadata filters to scope answers to the relevant document types and dates.
+- **Chatbot**: a conversational interface exposing the retrieval pipeline, with answers citing their source chunks.
+
+## Result
+
+- Staff answered document questions in conversation instead of through manual searches.
+- Citation-backed answers made responses verifiable — important for documents with legal weight.
+- The retrieval pattern was reusable across the client's other corpora.
+
+## Confidentiality note
+
+Client and property details stay general here, following the same posture as my other regulated case studies.
+
+## Stack highlights
+
+- <Skill>LangChain</Skill> for the retrieval pipeline
+- <Skill>Qdrant</Skill> as the vector store
+- <Skill>Python</Skill> for all ingestion and query-time logic

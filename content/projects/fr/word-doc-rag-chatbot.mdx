@@ -1,0 +1,44 @@
+---
+title: "Chatbot RAG qui rédige des documents Word"
+slug: "word-doc-rag-chatbot"
+summary: "Un chatbot RAG qui répond aux questions posées sur un corpus documentaire et aide à rédiger des documents Word structurés à partir du contenu récupéré."
+tags: ["RAG", "LangChain", "Qdrant", "ONLYOFFICE", "Génération de documents"]
+client: "Client entreprise (France)"
+clientVisible: true
+year: 2025
+role: "Consultant IA (de bout en bout)"
+tech: ["Python", "LangChain", "Qdrant", "ONLYOFFICE"]
+status: "Terminé"
+---
+
+## Situation
+
+Un client entreprise produisait des documents qui s'appuyaient fortement sur un large corpus interne — chaque brouillon signifiait des heures à rassembler et recouper les sources.
+
+## Tâche
+
+Le client voulait un chatbot capable de répondre aux questions sur le corpus **et** de transformer le contenu récupéré en un document Word prêt à éditer, pour réduire le temps de rédaction.
+
+## Action
+
+J'ai construit un chatbot RAG avec une couche interactive de génération de documents :
+
+- **Récupération** : corpus découpé, encodé et indexé dans <Skill>Qdrant</Skill> ; réponses ancrées dans les chunks récupérés.
+- **Rédaction conversationnelle** : le bot interagit avec l'utilisateur pour structurer le document — plan, sections, formulation — avant génération.
+- **Export Word** : la structure finale rendue en `.docx` formaté via <Skill>ONLYOFFICE</Skill>, éditable par l'utilisateur.
+
+## Résultat
+
+- La rédaction est passée d'un processus manuel de collecte et de recoupement à un flux de travail interactif assisté.
+- Les utilisateurs obtenaient un document Word éditable, intégré directement aux processus existants.
+
+## Note de confidentialité
+
+Client et spécificités du corpus restent généraux ici.
+
+## Points forts de la stack
+
+- <Skill>LangChain</Skill> pour la récupération et le flux conversationnel
+- <Skill>Qdrant</Skill> comme store vectoriel
+- <Skill>ONLYOFFICE</Skill> pour la génération `.docx`
+- <Skill>Python</Skill> de bout en bout

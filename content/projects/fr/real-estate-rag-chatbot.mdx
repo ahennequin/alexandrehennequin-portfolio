@@ -1,0 +1,44 @@
+---
+title: "Assistant RAG & chatbot immobilier"
+slug: "real-estate-rag-chatbot"
+summary: "Un assistant et chatbot RAG qui répond aux questions posées sur les documents immobiliers avec des réponses sourcées."
+tags: ["RAG", "LangChain", "Qdrant", "Chatbot", "LLM"]
+client: "Client du secteur immobilier (France)"
+clientVisible: true
+year: 2025
+role: "Consultant IA (de bout en bout)"
+tech: ["Python", "LangChain", "Qdrant"]
+status: "Terminé"
+---
+
+## Situation
+
+Une entreprise immobilière gérait un volume important de documents de propriété — annonces, diagnostics techniques, actes juridiques. Le personnel cherchait et recoupait constamment ces documents pour répondre aux questions des clients et des équipes internes.
+
+## Tâche
+
+Le client voulait un assistant en langage naturel capable de répondre rapidement aux questions sur le corpus, avec des sources vérifiables, pour remplacer la recherche manuelle.
+
+## Action
+
+J'ai conçu et livré un **système de génération augmentée par récupération (RAG)** avec une interface chatbot :
+
+- **Indexation** : documents de propriété parsés, découpés en chunks, encodés et stockés dans <Skill>Qdrant</Skill>.
+- **Récupération** : recherche vectorielle top-k avec filtres par métadonnées pour cibler les bons types de documents et dates.
+- **Chatbot** : interface conversationnelle exposant le pipeline de récupération, avec des réponses citant leurs chunks sources.
+
+## Résultat
+
+- Le personnel a répondu aux questions documentaires en conversation plutôt que par des recherches manuelles.
+- Les réponses sourcées ont rendu les informations vérifiables — important pour des documents à portée juridique.
+- Le pattern de récupération était réutilisable sur les autres corpus du client.
+
+## Note de confidentialité
+
+Client et détails de propriété restent généraux ici, dans la même posture que mes autres études de cas réglementées.
+
+## Points forts de la stack
+
+- <Skill>LangChain</Skill> pour le pipeline de récupération
+- <Skill>Qdrant</Skill> comme store vectoriel
+- <Skill>Python</Skill> pour toute la logique d'ingestion et de recherche

@@ -52,11 +52,11 @@ body {
     @apply my-4 space-y-2;
   }
   .mdx li {
-    @apply flex gap-3;
+    @apply relative pl-6;
   }
   .mdx li::before {
     content: "";
-    @apply mt-[9px] block h-1 w-1 shrink-0 rounded-full bg-signal;
+    @apply absolute left-0 top-[9px] block h-1 w-1 rounded-full bg-signal;
   }
   .mdx strong {
     @apply font-semibold text-signal;

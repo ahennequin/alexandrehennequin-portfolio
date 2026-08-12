@@ -53,13 +53,17 @@ export type RetrievalHit = {
 
 export async function retrieve(
   vector: number[],
-  topK = 4
+  topK = 4,
+  lang?: "en" | "fr"
 ): Promise<RetrievalHit[]> {
   const c = getQdrantClient();
   const res = await c.query(COLLECTION_NAME, {
     query: vector,
     limit: topK,
     with_payload: true,
+    filter: lang
+      ? { must: [{ key: "lang", match: { value: lang } }] }
+      : undefined,
   });
   return res.points.map((hit) => ({
     id: String(hit.id),

@@ -4,6 +4,7 @@ import "./globals.css";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import ChatWidget from "@/components/ChatWidget";
+import HtmlLangSetter from "@/components/HtmlLangSetter";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -28,7 +29,7 @@ const plexMono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: "Alexandre Hennequin — AI & Data Science Consultant",
   description:
-    "Independent AI/Data Science consultant based in Lyon, France. I design and build LLM systems, RAG pipelines, and data platforms that are production-grade.",
+    "Independent AI/Data Science consultant based in Marseille, France — trained in cognitive science research (PhD, CNRS), building LLM systems, RAG pipelines, and data platforms that hold up in production.",
 };
 
 export default function RootLayout({
@@ -42,6 +43,7 @@ export default function RootLayout({
       className={`${inter.variable} ${spectral.variable} ${plexMono.variable} antialiased`}
     >
       <body className="min-h-screen bg-paper text-ink font-sans">
+        <HtmlLangSetter />
         <SiteHeader />
         <main className="flex-1">{children}</main>
         <SiteFooter />

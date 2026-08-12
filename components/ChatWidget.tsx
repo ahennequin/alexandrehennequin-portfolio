@@ -1,25 +1,20 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+import { getMessages, type Locale } from "@/lib/i18n";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
-const GREETING: ChatMessage = {
-  role: "assistant",
-  content:
-    "Hi — I'm a RAG assistant that answers questions about Alexandre's CV, skills, and projects from this site's content. Ask me anything about his background or work.",
-};
-
-const SUGGESTIONS = [
-  "What does Alex do?",
-  "Tell me about the O-Kidia project",
-  "What stack does he use?",
-  "What is the foncier RAG project?",
-];
-
 export default function ChatWidget() {
+  const pathname = usePathname();
+  const locale: Locale = pathname.startsWith("/fr") ? "fr" : "en";
+  const t = getMessages(locale);
+
   const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([GREETING]);
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    { role: "assistant", content: t.chat.greeting },
+  ]);
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -45,11 +40,11 @@ export default function ChatWidget() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: nextMessages }),
+        body: JSON.stringify({ messages: nextMessages, lang: locale }),
       });
 
       if (!res.ok) {
-        let detail = "Something went wrong. Please try again.";
+        let detail = t.chat.error;
         try {
           const data = await res.json();
           if (data?.error) detail = data.error;
@@ -82,10 +77,7 @@ export default function ChatWidget() {
     } catch {
       setMessages((prev) => [
         ...prev,
-        {
-          role: "assistant",
-          content: "Could not reach the assistant. Please try again.",
-        },
+        { role: "assistant", content: t.chat.networkError },
       ]);
     } finally {
       setStreaming(false);
@@ -132,18 +124,18 @@ export default function ChatWidget() {
         <header className="flex items-center justify-between border-b border-graphite/20 px-4 py-3">
           <div>
             <p className="font-mono text-xs font-medium uppercase tracking-[0.15em] text-signal">
-              Portfolio assistant
+              {t.chat.title}
             </p>
             <p className="mt-0.5 font-mono text-[10px] text-graphite">
-              RAG over this site&apos;s content
+              {t.chat.subtitle}
             </p>
           </div>
           <button
             onClick={() => setOpen(false)}
             className="px-2 py-1 font-mono text-xs text-graphite hover:text-ink"
-            aria-label="Close chat"
+            aria-label={t.chat.close}
           >
-            close
+            {t.chat.close}
           </button>
         </header>
 
@@ -174,7 +166,7 @@ export default function ChatWidget() {
 
           {messages.length === 1 && (
             <div className="flex flex-wrap gap-2 pt-1">
-              {SUGGESTIONS.map((s) => (
+              {t.chat.suggestions.map((s) => (
                 <button
                   key={s}
                   onClick={() => sendMessage(s)}
@@ -200,7 +192,7 @@ export default function ChatWidget() {
               }}
               onKeyDown={onKeyDown}
               rows={1}
-              placeholder="Ask about CV, skills, projects…"
+              placeholder={t.chat.placeholder}
               className="max-h-40 flex-1 resize-none border border-graphite/30 bg-transparent px-3 py-2 text-sm text-ink placeholder:text-graphite focus:border-signal focus:outline-none"
             />
             <button
@@ -208,7 +200,7 @@ export default function ChatWidget() {
               disabled={streaming || input.trim().length === 0}
               className="border border-signal px-3 py-2 font-mono text-xs font-medium text-signal transition-colors hover:bg-signal hover:text-paper disabled:cursor-not-allowed disabled:opacity-40"
             >
-              send
+              {t.chat.send}
             </button>
           </div>
         </form>
@@ -217,9 +209,9 @@ export default function ChatWidget() {
       <button
         onClick={() => setOpen((v) => !v)}
         className="fixed bottom-4 right-4 z-50 border border-signal bg-signal px-4 py-3 font-mono text-xs font-medium uppercase tracking-[0.15em] text-paper transition-colors hover:bg-transparent hover:text-signal sm:bottom-6 sm:right-6"
-        aria-label="Toggle portfolio assistant"
+        aria-label={t.chat.title}
       >
-        {open ? "close" : "ask ↗"}
+        {open ? t.chat.close : t.chat.ask}
       </button>
     </>
   );

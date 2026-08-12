@@ -1,0 +1,48 @@
+---
+title: "Assistant RAG pour un client du secteur foncier"
+slug: "foncier-rag-agent"
+summary: "Un agent Qdrant + LangChain/LangGraph qui répond aux questions posées sur un large corpus de documents cadastraux, avec des réponses sourcées."
+tags: ["RAG", "LangChain", "LangGraph", "Qdrant", "Agents LLM"]
+client: "Entreprise du secteur foncier (France)"
+clientVisible: true
+year: 2024
+role: "Consultant IA (de bout en bout)"
+tech: ["Python", "LangChain", "LangGraph", "Qdrant", "Voyage AI", "Anthropic Claude", "Docker"]
+status: "Terminé"
+---
+
+## Situation
+
+Une entreprise d'administration foncière gérait un corpus vaste et croissant de documents de propriété et de parcelles. Le personnel passait des heures à chercher et recouper manuellement ces documents pour répondre aux questions internes et clients.
+
+## Tâche
+
+Le client voulait un système capable de répondre en langage naturel à des questions sur le corpus, avec des réponses **traçables et sourcées** — pas seulement une barre de recherche.
+
+## Action
+
+J'ai conçu et livré un **agent de génération augmentée par récupération (RAG)** sur le corpus documentaire :
+
+- **Chunking & indexation** : documents parsés, découpés en chunks sémantiquement cohérents, encodés et stockés dans <Skill>Qdrant</Skill> comme store vectoriel.
+- **Récupération** : recherche vectorielle top-k avec filtrage par métadonnées pour limiter les résultats aux bons types de documents et dates.
+- **Agent** : agent <Skill>LangChain/LangGraph</Skill> qui planifie entre récupération, lecture des documents sources et rédaction des réponses, gardant le modèle sur la tâche avec un petit ensemble d'outils.
+- **Réponses** : réponses finales avec références aux chunks sources, pour que chaque affirmation soit vérifiable.
+
+## Résultat
+
+- Temps de réponse à une question documentaire typique réduit de **15 à 20 minutes à moins d'une minute**.
+- Les citations ont permis au personnel de vérifier les réponses au lieu de rechercher manuellement, ce qui était essentiel dans ce secteur réglementé.
+- L'architecture est devenue un modèle réutilisable que le client a pu réutiliser pour d'autres corpus.
+
+## Note de confidentialité
+
+Les détails techniques et de données de ce projet réglementé restent volontairement généraux ici. Nom du client omis à sa demande — la même posture que dans mes autres études de cas.
+
+## Points forts de la stack
+
+- <Skill>Qdrant</Skill> comme base vectorielle (hébergée)
+- <Skill>Voyage AI</Skill> pour les embeddings, <Skill>Anthropic Claude</Skill> pour la génération
+- <Skill>LangGraph</Skill> pour le flux de contrôle agentique
+- <Skill>Docker</Skill> pour un déploiement reproductible sur l'infrastructure du client
+
+Le même pattern RAG alimente le widget de chat de ce site.

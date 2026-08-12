@@ -1,70 +1,308 @@
 {
-  "name": "Alexandre Hennequin",
-  "titles": ["AI Consultant", "Data Scientist", "Data Engineer"],
-  "tagline": "I design and build LLM-based systems, RAG pipelines, and data platforms for clients who need production-grade AI — not demos.",
-  "summary": "Independent AI & Data Science consultant. I help organizations ship LLM applications, retrieval systems, and data pipelines that are reliable, measurable, and cost-conscious. Comfortable from empty repo to production deployment: data engineering, embedding pipelines, vector search, LLM application architecture, and the observability that keeps them honest.",
-  "email": "contact@alexandrehennequin.dev",
-  "location": "Lyon, France — working remotely",
-  "linkedin": "https://www.linkedin.com/in/alexandrehennequin",
-  "github": "https://github.com/alexandrehennequin",
-  "languages": [
-    { "name": "French", "level": "Native" },
-    { "name": "English", "level": "Fluent" }
-  ],
-  "skills": [
-    { "category": "AI / LLM", "items": ["RAG systems", "Prompt engineering", "LLM agents", "Evaluation", "Retrieval optimization"] },
-    { "category": "Data / ML", "items": ["Python", "Pandas / Polars", "Scikit-learn", "Evaluation & metrics", "Experimentation"] },
-    { "category": "Data Engineering", "items": ["Airflow", "SQL", "ETL/ELT", "dbt", "Data warehouses", "Quality monitoring"] },
-    { "category": "Infrastructure / Ops", "items": ["Docker", "Vector stores (Qdrant)", "Cloud (AWS)", "CI/CD", "Observability"] }
-  ],
-  "experience": [
-    {
-      "role": "Independent AI & Data Science Consultant",
-      "company": "Self-employed",
-      "location": "Lyon, France",
-      "startDate": "2023-01",
-      "endDate": "Present",
-      "highlights": [
-        "Delivered LLM-based projects for clients across healthcare and public-sector services",
-        "Designed and deployed retrieval-augmented generation (RAG) systems on vector databases",
-        "Built and maintained data pipelines in Airflow for production analytics workloads",
-        "Owned projects end-to-end: scoping, architecture, implementation, deployment, and client handover"
-      ]
-    },
-    {
-      "role": "Data Scientist",
-      "company": "O-Kidia",
-      "location": "Paris, France",
-      "startDate": "2021-03",
-      "endDate": "2022-12",
-      "highlights": [
-        "Built the data & ML foundation for a company producing cognitive evaluation software for children",
-        "Architected and operated Airflow pipelines for ingesting and processing clinical assessment data",
-        "Developed anomaly-detection and reporting tooling to monitor data quality across datasets",
-        "Worked with regulated health-adjacent data, maintaining conservative security and confidentiality practices"
-      ]
-    },
-    {
-      "role": "Data Analyst",
-      "company": "Multiple clients (consulting)",
-      "location": "France",
-      "startDate": "2019-09",
-      "endDate": "2021-02",
-      "highlights": [
-        "Delivered reporting and analytics projects for small and mid-size businesses",
-        "Designed SQL data models feeding dashboards used in management decisions",
-        "Introduced structured experimentation and data-quality practices for non-technical teams"
-      ]
-    }
-  ],
-  "education": [
-    {
-      "degree": "M.Sc. in Data Science",
-      "institution": "University of Lyon",
-      "startDate": "2017",
-      "endDate": "2019",
-      "details": "Machine learning, statistics, and software engineering curriculum"
-    }
-  ],
-  "interests": ["LLM application architecture", "Information retrieval", "Developer tooling", "Rust", "Experimental music"]
+  "en": {
+    "name": "Alexandre Hennequin",
+    "titles": [
+      "AI Consultant",
+      "Data Scientist",
+      "Applied Researcher"
+    ],
+    "tagline": "I design and build LLM-based systems, RAG pipelines, and data platforms for clients who need production-grade AI — not demos. Trained in research methodology through a PhD in cognitive science (CNRS), I bring rigorous evaluation and experimental design to every engagement.",
+    "summary": "Independent AI & Data Science consultant. I help organizations ship LLM applications, retrieval systems, and data pipelines that are reliable, measurable, and cost-conscious. Comfortable from empty repo to production deployment: data engineering, embedding pipelines, vector search, LLM application architecture, and the observability that keeps them honest.",
+    "email": "alexandredothennequin@gmail.com",
+    "location": "Marseille, France — working remotely",
+    "linkedin": "https://www.linkedin.com/in/alexandrehennequin",
+    "github": "https://github.com/alexandrehennequin",
+    "scholar": "https://scholar.google.com/citations?user=feBIALgAAAAJ&hl=fr",
+    "languages": [
+      {
+        "name": "French",
+        "level": "Native"
+      },
+      {
+        "name": "English",
+        "level": "Fluent"
+      }
+    ],
+    "skills": [
+      {
+        "category": "AI / LLM",
+        "items": [
+          "RAG systems",
+          "Prompt engineering",
+          "LLM agents",
+          "Evaluation",
+          "Retrieval optimization"
+        ]
+      },
+      {
+        "category": "Data / ML",
+        "items": [
+          "Python",
+          "Pandas / Polars",
+          "Scikit-learn",
+          "Pytorch / TensorFlow",
+          "Evaluation & metrics",
+          "Experimentation (MLFlow)"
+        ]
+      },
+      {
+        "category": "Data Engineering",
+        "items": [
+          "Airflow",
+          "SQL",
+          "ETL/ELT",
+          "Quality monitoring"
+        ]
+      },
+      {
+        "category": "Research & Methodology",
+        "items": [
+          "Experimental design",
+          "Rigorous evaluation methodology",
+          "Statistical analysis",
+          "Peer-reviewed research",
+          "PhD in cognitive science"
+        ]
+      },
+      {
+        "category": "Infrastructure / Ops",
+        "items": [
+          "Docker",
+          "Vector stores (Qdrant)",
+          "Cloud (AWS)",
+          "CI/CD",
+          "Observability (LangSmith)"
+        ]
+      }
+    ],
+    "experience": [
+      {
+        "role": "Independent AI & Data Science Consultant",
+        "company": "Self-employed",
+        "location": "Marseille, France",
+        "startDate": "2025",
+        "endDate": "Present",
+        "challenge": "Clients across real estate, land administration, and creative media need production-grade LLM systems in place of slow manual document work — with answers that are traceable, reliable, and fast.",
+        "actions": [
+          "Designed and deployed retrieval-augmented generation (RAG) agents on Qdrant vector stores, with citation-backed answers",
+          "Built end-to-end LLM products: a real-estate RAG assistant and chatbot, a RAG chatbot that drafts Word documents, and a children's story generator (LLM + TTS) delivered as a mobile app",
+          "Owned projects end-to-end: scoping, architecture, implementation, deployment, and client handover"
+        ],
+        "impact": [
+          "Cut multi-document retrieval from 15–20 minutes to under a minute for a land-registry client",
+          "Shipped 3 production LLM products across real estate, document drafting, and mobile storytelling"
+        ]
+      },
+      {
+        "role": "Lead Data Scientist",
+        "company": "O-Kidia",
+        "location": "Marseille, France",
+        "startDate": "2022",
+        "endDate": "2025",
+        "challenge": "O-Kidia set out to build new technology to assess mental health in children through a holistic view — captured via handheld tablet sensors displaying \"games\" that were actually cognitive tests. As its first employee, I built the data and ML foundation the product ran on.",
+        "actions": [
+          "As first employee, laid the foundation for data handling and processing",
+          "Built, trained, and fine-tuned models handling multiple modalities of data",
+          "Worked across multiple disciplines: clinic, ML/AI, and IT security for clinical data and GDPR",
+          "Prepared for ISO 13485 certification as a medical device"
+        ],
+        "impact": [
+          "Processed ~1 TB of multimodal assessment data in near-real time — roughly 10x faster than manual annotation",
+          "Contributed to 2 peer-reviewed articles and multiple conference presentations"
+        ]
+      },
+      {
+        "role": "Data Scientist",
+        "company": "CrocosGoDigital",
+        "location": "France",
+        "startDate": "2021",
+        "endDate": "2022",
+        "challenge": "Built a video processing pipeline for facial emotion recognition, from raw footage to interpretable results, running on a single cloud GPU.",
+        "actions": [
+          "Built a facial emotion recognition pipeline in PyTorch running on a single cloud GPU",
+          "Displayed results in a visual dashboard presented at a conference"
+        ],
+        "impact": [
+          "Cut video processing time 5x for a facial emotion recognition pipeline on a single cloud GPU"
+        ]
+      }
+    ],
+    "education": [
+      {
+        "degree": "Ph.D. in Cognitive Science",
+        "institution": "University of Grenoble Alpes",
+        "startDate": "2016",
+        "endDate": "2019",
+        "details": "Speech perception, multimodal/multisensory familiarization — GIPSA-lab (CNRS)",
+        "link": "https://theses.fr/2019GREAS013"
+      },
+      {
+        "degree": "M.Sc. in Cognitive Science",
+        "institution": "University of Grenoble Alpes",
+        "startDate": "2015",
+        "endDate": "2016",
+        "details": "Machine learning, statistics, and software engineering curriculum"
+      }
+    ],
+    "interests": [
+      "LLM application architecture",
+      "Agentic systems",
+      "Brain-computer interfaces",
+      "Psycholinguistics",
+      "Developer tooling"
+    ]
+  },
+  "fr": {
+    "name": "Alexandre Hennequin",
+    "titles": [
+      "Ingénieur IA",
+      "Data Scientist",
+      "Chercheur"
+    ],
+    "tagline": "Je conçois et construis des systèmes basés sur les LLM, des pipelines RAG et des plateformes de données pour des clients qui ont besoin d'IA de qualité production — pas de démos. Formé à la méthodologie de recherche par un doctorat en sciences cognitives (CNRS), j'apporte évaluation rigoureuse et conception expérimentale à chaque mission.",
+    "summary": "Consultant indépendant en IA et Data Science. J'aide les organisations à mettre en production des applications LLM, des systèmes de recherche d'information et des pipelines de données fiables, mesurables et maîtrisés en coût. À l'aise du dépôt vide au déploiement en production : data engineering, pipelines d'embeddings, recherche vectorielle, architecture d'applications LLM, et l'observabilité qui en garantit la fiabilité.",
+    "email": "alexandredothennequin@gmail.com",
+    "location": "Marseille, France — travail à distance",
+    "linkedin": "https://www.linkedin.com/in/alexandrehennequin",
+    "github": "https://github.com/alexandrehennequin",
+    "scholar": "https://scholar.google.com/citations?user=feBIALgAAAAJ&hl=fr",
+    "languages": [
+      {
+        "name": "Français",
+        "level": "Langue maternelle"
+      },
+      {
+        "name": "Anglais",
+        "level": "Courant"
+      }
+    ],
+    "skills": [
+      {
+        "category": "IA / LLM",
+        "items": [
+          "Systèmes RAG",
+          "Prompt engineering",
+          "Agents LLM",
+          "Évaluation",
+          "Optimisation de la recherche"
+        ]
+      },
+      {
+        "category": "Data / ML",
+        "items": [
+          "Python",
+          "Pandas / Polars",
+          "Scikit-learn",
+          "Pytorch / TensorFlow",
+          "Évaluation & métriques",
+          "Expérimentation (MLFlow)"
+        ]
+      },
+      {
+        "category": "Data Engineering",
+        "items": [
+          "Airflow",
+          "SQL",
+          "ETL/ELT",
+          "Suivi de la qualité"
+        ]
+      },
+      {
+        "category": "Recherche & Méthodologie",
+        "items": [
+          "Conception expérimentale",
+          "Méthodologie d'évaluation rigoureuse",
+          "Analyse statistique",
+          "Recherche évaluée par les pairs (traitement de la parole)",
+          "Doctorat en sciences cognitives"
+        ]
+      },
+      {
+        "category": "Infrastructure / Ops",
+        "items": [
+          "Docker",
+          "Stores vectoriels (Qdrant)",
+          "Cloud (AWS)",
+          "CI/CD",
+          "Observabilité (LangSmith)"
+        ]
+      }
+    ],
+    "experience": [
+      {
+        "role": "Consultant indépendant en IA & Data Science",
+        "company": "Indépendant",
+        "location": "Marseille, France",
+        "startDate": "2025",
+        "endDate": "Present",
+        "challenge": "Des clients des secteurs de l'immobilier, de l'administration foncière et des médias créatifs ont besoin de systèmes LLM de qualité production pour remplacer un travail documentaire manuel lent — avec des réponses traçables, fiables et rapides.",
+        "actions": [
+          "Conception et déploiement d'agents de génération augmentée par récupération (RAG) sur stores vectoriels Qdrant, avec réponses sourcées",
+          "Construction de produits LLM de bout en bout : assistant et chatbot RAG immobilier, chatbot RAG qui rédige des documents Word, et générateur d'histoires pour enfants (LLM + TTS) livré en application mobile",
+          "Projets menés de bout en bout : cadrage, architecture, implémentation, déploiement et passation client"
+        ],
+        "impact": [
+          "Récupération multi-documents passée de 15 à 20 minutes à moins d'une minute pour un client du foncier",
+          "Livraison de 3 produits LLM en production : immobilier, rédaction de documents et narration mobile"
+        ]
+      },
+      {
+        "role": "Lead Data Scientist",
+        "company": "O-Kidia",
+        "location": "Marseille, France",
+        "startDate": "2022",
+        "endDate": "2025",
+        "challenge": "O-Kidia visait à construire une nouvelle technologie d'évaluation de la santé mentale chez les enfants grâce à une vision holistique — captée via des capteurs de tablette portable affichant des « jeux » qui étaient en réalité des tests cognitifs. En tant que premier employé, j'ai posé les fondations data et ML du produit.",
+        "actions": [
+          "En tant que premier employé, posé les fondations du traitement et de la gestion des données",
+          "Construit, entraîné et affiné des modèles gérant de multiples modalités de données",
+          "Travaillé à l'intersection de plusieurs disciplines : clinique, IA/ML et sécurité informatique pour les données cliniques et le RGPD",
+          "Préparé la certification ISO 13485 en tant que dispositif médical"
+        ],
+        "impact": [
+          "Traitement de ~1 To de données d'évaluation multimodales en quasi-temps réel — environ 10x plus rapide qu'une annotation manuelle",
+          "Contribution à 2 articles évalués par les pairs et à de multiples présentations en conférence"
+        ]
+      },
+      {
+        "role": "Data Scientist",
+        "company": "CrocosGoDigital",
+        "location": "France",
+        "startDate": "2021",
+        "endDate": "2022",
+        "challenge": "Construction d'un pipeline de traitement vidéo pour la reconnaissance d'émotions faciales, de la vidéo brute aux résultats interprétables, exécuté sur un seul GPU cloud.",
+        "actions": [
+          "Construction d'un pipeline de reconnaissance d'émotions faciales en PyTorch, exécuté sur un seul GPU cloud",
+          "Visualisation des résultats dans un tableau de bord présenté en conférence"
+        ],
+        "impact": [
+          "Réduction du temps de traitement vidéo par 5 pour un pipeline de reconnaissance d'émotions faciales sur un seul GPU cloud"
+        ]
+      }
+    ],
+    "education": [
+      {
+        "degree": "Doctorat en sciences cognitives",
+        "institution": "Université Grenoble Alpes",
+        "startDate": "2016",
+        "endDate": "2019",
+        "details": "Perception de la parole, familiarisation multimodale/multisensorielle — GIPSA-lab (CNRS)",
+        "link": "https://theses.fr/2019GREAS013"
+      },
+      {
+        "degree": "Master en sciences cognitives",
+        "institution": "Université Grenoble Alpes",
+        "startDate": "2015",
+        "endDate": "2016",
+        "details": "Cursus en apprentissage automatique, statistiques et génie logiciel"
+      }
+    ],
+    "interests": [
+      "Architecture d'applications LLM",
+      "Systèmes agentiques",
+      "Interfaces cerveau-ordinateur",
+      "Psycholinguistique",
+      "Outillage de développement"
+    ]
+  }
 }

@@ -37,6 +37,17 @@ npm run dev         # http://localhost:3000
 
 `npm run ingest` chunks `content/`, embeds each chunk with `voyage-4`, recreates the `site_content` collection, and upserts the vectors. Re-run it after editing any content file so the assistant stays in sync with the site.
 
+## Bilingual site (EN / FR)
+
+The site ships both an English and a French version of every page:
+
+- **English** is the default and lives at the root (`/`, `/cv`, `/projects`, `/contact`).
+- **French** lives under the `/fr` prefix (`/fr`, `/fr/cv`, ...). Use the `EN`/`FR` toggle in the header to switch while preserving the current page.
+
+Each locale has its own content: `content/cv.json` holds both variants (`{ "en": …, "fr": … }`) and projects are split into `content/projects/en/*.mdx` and `content/projects/fr/*.mdx` (slugs are identical across languages). UI strings live in `lib/i18n.ts` (`MESSAGES` per locale); shared page components in `components/pages/` take a `locale` prop, with thin wrappers at the root and under `app/fr/`.
+
+The chat widget detects the visitor's locale and answers in that language. Retrieval is scoped to the same-language chunks (each indexed chunk carries a `lang` payload), and the system prompt tells the model which language to reply in. Re-run `npm run ingest` after adding or editing translated content so both languages stay in the index.
+
 ## The chat assistant
 
 The floating widget (bottom-right) is a live demo of the author's RAG/agentic skillset — the same pattern described in the foncier case study. Flow inside `app/api/chat/route.ts`:
@@ -62,5 +73,5 @@ Chat history is kept in client-side React state only — no visitor data is pers
 
 ## Content
 
-- `content/cv.json` — structured CV data (experience, skills, education, languages, contact).
-- `content/projects/*.mdx` — case studies with frontmatter (client, year, role, stack) and markdown body. Confidentiality posture for regulated client work mirrors the Malt portfolio case studies.
+- `content/cv.json` — structured CV data for both locales (`en` and `fr` keys): experience, skills, education, languages, contact.
+- `content/projects/en/*.mdx` + `content/projects/fr/*.mdx` — case studies per language, with frontmatter (client, year, role, stack) and markdown body. Confidentiality posture for regulated client work mirrors the Malt portfolio case studies.

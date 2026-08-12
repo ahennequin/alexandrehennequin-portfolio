@@ -1,0 +1,47 @@
+---
+title: "Pipeline de données Airflow & fondation ML — O-Kidia"
+slug: "o-kidia-airflow-pipeline"
+summary: "Plateforme Airflow de production pour l'ingestion, la validation et la surveillance de données d'évaluation cognitive clinique, plus les modèles ML qui alimentent le produit."
+tags: ["Airflow", "ETL", "Python", "Data Engineering", "Monitoring"]
+client: "O-Kidia"
+clientVisible: true
+year: 2022
+role: "Data Scientist"
+tech: ["Python", "Airflow", "PostgreSQL", "Docker", "Scikit-learn"]
+status: "Terminé"
+---
+
+## Situation
+
+O-Kidia développe des logiciels qui évaluent les compétences cognitives des enfants via des tâches interactives, principalement pour les professionnels de l'éducation et de la santé. À mesure que les produits montaient en charge, les données d'évaluation s'accumulaient plus vite que les processus manuels existants ne pouvaient les traiter.
+
+## Tâche
+
+L'entreprise avait besoin d'un pipeline fiable et surveillé pour **ingérer, nettoyer et exposer** les données d'évaluation clinique aux équipes qui construisent le produit et rendent compte aux clients — plus des modèles ML alimentant les fonctionnalités produit.
+
+## Action
+
+J'ai possédé la fondation data & ML :
+
+- **Plateforme Airflow** : DAGs de production planifiant les jobs d'ingestion et de transformation, avec relances, alertes et un déploiement Docker reproductible.
+- **Jobs ETL** : parsing des exports d'évaluation bruts, nettoyage et chargement dans des tables normalisées PostgreSQL.
+- **Surveillance de la qualité des données** : détection d'anomalies et contrôles de dérive sur les données entrantes, pour que les régressions remontent rapidement plutôt que de corrompre silencieusement les rapports.
+- **Modèles ML** : modèles statistiques sur les données d'évaluation alimentant des fonctionnalités produit (scores de préparation, indicateurs d'anomalie).
+
+## Résultat
+
+- Traitement de **~1 To de données d'évaluation multimodales** en quasi-temps réel — environ **10x plus rapide** qu'une annotation manuelle.
+- Les contrôles de qualité ont éliminé les erreurs silencieuses qui nécessitaient auparavant de retraiter des lots entiers.
+- Le travail a aussi produit **2 articles évalués par les pairs et de multiples contributions en conférence**.
+- Le pattern du pipeline a été réutilisé pour de nouveaux formats d'évaluation à mesure que la gamme grandissait.
+
+## Note de confidentialité
+
+Le travail impliquait des données réglementées liées à la santé. Noms et détails techniques précis restent généraux ici ; l'approche — contrôles d'accès conservateurs, exposition minimale des données, séparation nette entre systèmes — est celle que j'applique à toute mission réglementée.
+
+## Points forts de la stack
+
+- <Skill>Airflow</Skill> pour l'orchestration et la planification
+- <Skill>PostgreSQL</Skill> comme entrepôt analytique
+- <Skill>Docker</Skill> pour des environnements de pipeline reproductibles
+- <Skill>Scikit-learn</Skill> pour les composants ML

@@ -1,8 +1,9 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { embedQuery } from "@/lib/embeddings";
 import { retrieve } from "@/lib/qdrant";
-import { SYSTEM_PROMPT, buildUserPrompt, formatContext } from "@/lib/prompt";
+import { buildSystemPrompt, buildUserPrompt, formatContext } from "@/lib/prompt";
 import { getClientIp, isRateLimited } from "@/lib/rateLimit";
+import { isLocale, type Locale } from "@/lib/i18n";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -38,19 +39,25 @@ function buildClaudeMessages(
 }
 
 export async function POST(req: Request) {
-  if (isRateLimited(getClientIp(req.headers))) {
-    return new Response(
-      JSON.stringify({ error: "Too many requests. Please wait a minute." }),
-      { status: 429, headers: { "Content-Type": "application/json" } }
-    );
-  }
-
-  let body: { messages?: ChatMessage[] };
+  let body: { messages?: ChatMessage[]; lang?: string };
   try {
     body = await req.json();
   } catch {
     return new Response(JSON.stringify({ error: "Invalid request body." }), {
       status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  const lang: Locale = isLocale(body.lang) ? body.lang : "en";
+  const rateLimitMessage =
+    lang === "fr"
+      ? "Trop de requêtes. Veuillez patienter une minute."
+      : "Too many requests. Please wait a minute.";
+
+  if (isRateLimited(getClientIp(req.headers))) {
+    return new Response(JSON.stringify({ error: rateLimitMessage }), {
+      status: 429,
       headers: { "Content-Type": "application/json" },
     });
   }
@@ -77,7 +84,7 @@ export async function POST(req: Request) {
     async start(controller) {
       try {
         const queryVector = await embedQuery(query);
-        const hits = await retrieve(queryVector, 5);
+        const hits = await retrieve(queryVector, 5, lang);
         const context = formatContext(hits);
         const userPrompt = buildUserPrompt(query, context);
         const claudeMessages = buildClaudeMessages(history, userPrompt);
@@ -86,7 +93,7 @@ export async function POST(req: Request) {
         const messageStream = await anthropic.messages.stream({
           model: MODEL,
           max_tokens: 800,
-          system: SYSTEM_PROMPT,
+          system: buildSystemPrompt(lang),
           messages: claudeMessages,
         });
 
@@ -102,7 +109,9 @@ export async function POST(req: Request) {
         console.error("/api/chat error:", err);
         controller.enqueue(
           encoder.encode(
-            "\n\n[Something went wrong while answering — please try again.]"
+            lang === "fr"
+              ? "\n\n[Une erreur est survenue pendant la réponse — veuillez réessayer.]"
+              : "\n\n[Something went wrong while answering — please try again.]"
           )
         );
       } finally {

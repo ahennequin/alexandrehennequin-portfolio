@@ -5,7 +5,7 @@ import ProjectDetailPage from "@/components/pages/ProjectDetailPage";
 export const dynamicParams = false;
 
 export async function generateStaticParams() {
-  const projects = await getProjects("en");
+  const projects = await getProjects("fr");
   return projects.map((p) => ({ slug: p.frontmatter.slug }));
 }
 
@@ -15,7 +15,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const project = await getProject(slug, "en");
+  const project = await getProject(slug, "fr");
   if (!project) return {};
   return { title: `${project.frontmatter.title} — Alexandre Hennequin` };
 }
@@ -26,7 +26,7 @@ export default async function Page({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const project = await getProject(slug, "en");
+  const project = await getProject(slug, "fr");
   if (!project) notFound();
-  return <ProjectDetailPage locale="en" slug={slug} />;
+  return <ProjectDetailPage locale="fr" slug={slug} />;
 }

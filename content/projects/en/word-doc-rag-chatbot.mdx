@@ -1,0 +1,44 @@
+---
+title: "RAG Chatbot That Drafts Word Documents"
+slug: "word-doc-rag-chatbot"
+summary: "A RAG chatbot that answers questions from a document corpus and helps users draft structured Word documents from retrieved content."
+tags: ["RAG", "LangChain", "Qdrant", "ONLYOFFICE", "Document generation"]
+client: "Corporate client (France)"
+clientVisible: true
+year: 2025
+role: "AI Consultant (end-to-end)"
+tech: ["Python", "LangChain", "Qdrant", "ONLYOFFICE"]
+status: "Completed"
+---
+
+## Situation
+
+A corporate client produced documents that drew heavily on a large internal corpus — every draft meant hours of gathering and reconciling source material.
+
+## Task
+
+The client wanted a chatbot that could answer questions from the corpus and turn the retrieved content into a ready-to-edit Word document, reducing drafting time.
+
+## Action
+
+I built a RAG chatbot with an interactive document-generation layer:
+
+- **Retrieval**: corpus chunked, embedded, and indexed in <Skill>Qdrant</Skill>; answers grounded in retrieved chunks.
+- **Conversational drafting**: the bot interacts with the user to structure the document — outline, sections, wording — before generating.
+- **Word export**: the final structure rendered into a formatted `.docx` via <Skill>ONLYOFFICE</Skill>, editable by the user.
+
+## Result
+
+- Drafting moved from a manual gather-and-reconcile process to an interactive, assisted workflow.
+- Users ended with an editable Word document, so output plugged straight into existing processes.
+
+## Confidentiality note
+
+Client and corpus specifics stay general here.
+
+## Stack highlights
+
+- <Skill>LangChain</Skill> for retrieval and the conversational flow
+- <Skill>Qdrant</Skill> as the vector store
+- <Skill>ONLYOFFICE</Skill> for `.docx` generation
+- <Skill>Python</Skill> end to end
