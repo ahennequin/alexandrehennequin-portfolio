@@ -31,6 +31,7 @@ export const MESSAGES = {
       focusAreas: "Focus areas",
       selectedProjects: "Selected projects",
       allProjects: "all projects →",
+      photoAlt: "Portrait of Alexandre Hennequin",
     },
     cv: {
       eyebrow: "Curriculum vitae",
@@ -117,6 +118,7 @@ export const MESSAGES = {
       focusAreas: "Domaines d'intervention",
       selectedProjects: "Projets sélectionnés",
       allProjects: "tous les projets →",
+      photoAlt: "Portrait d'Alexandre Hennequin",
     },
     cv: {
       eyebrow: "Curriculum vitae",
