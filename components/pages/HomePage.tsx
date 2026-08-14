@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { getCv, getProjects } from "@/lib/content";
 import { getMessages, localizedPath, type Locale } from "@/lib/i18n";
@@ -11,15 +12,27 @@ export default async function HomePage({ locale }: { locale: Locale }) {
   return (
     <div className="mx-auto max-w-4xl px-6">
       <section className="py-20 sm:py-28">
-        <p className="font-mono text-xs uppercase tracking-[0.2em] text-signal">
-          {cv.titles.join(" · ")}
-        </p>
-        <h1 className="mt-6 font-display text-5xl font-semibold leading-tight tracking-tight sm:text-6xl">
-          {cv.name}
-        </h1>
-        <p className="mt-6 max-w-xl font-display text-xl leading-relaxed text-graphite sm:text-2xl">
-          {cv.tagline}
-        </p>
+        <div className="flex flex-col gap-8 sm:flex-row sm:items-start sm:gap-10">
+          <div className="sm:flex-1">
+            <p className="font-mono text-xs uppercase tracking-[0.2em] text-signal">
+              {cv.titles.join(" · ")}
+            </p>
+            <h1 className="mt-6 font-display text-5xl font-semibold leading-tight tracking-tight sm:text-6xl">
+              {cv.name}
+            </h1>
+            <p className="mt-6 max-w-xl font-display text-xl leading-relaxed text-graphite sm:text-2xl">
+              {cv.tagline}
+            </p>
+          </div>
+          <Image
+            src="/images/alexandre-hennequin.jpg"
+            alt={t.home.photoAlt}
+            width={200}
+            height={300}
+            className="w-32 border border-signal object-cover sm:w-40"
+            priority
+          />
+        </div>
         <WaveformDivider className="mt-10 text-signal" />
         <p className="mt-10 max-w-2xl text-lg leading-relaxed">{cv.summary}</p>
         <p className="mt-8 font-mono text-xs uppercase tracking-[0.15em] text-graphite">
