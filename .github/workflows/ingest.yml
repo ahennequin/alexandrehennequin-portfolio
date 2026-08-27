@@ -6,6 +6,12 @@ on:
       - main
     paths:
       - "content/**"
+  # Rebuild twice a week so the free Qdrant Cloud cluster never hits its
+  # ~7-day inactivity suspension. Mondays and Thursdays at 06:00 UTC.
+  schedule:
+    - cron: "0 6 * * 1,4"
+  # Allow a manual rebuild from the Actions tab.
+  workflow_dispatch:
 
 jobs:
   ingest:
