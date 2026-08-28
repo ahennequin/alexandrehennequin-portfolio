@@ -76,6 +76,7 @@ export const MESSAGES = {
       linkedin: "LinkedIn",
       github: "GitHub",
       note: "Available for remote and on-site engagements across France and Europe.",
+      schedule: "Schedule a call",
     },
     chat: {
       title: "Portfolio assistant",
@@ -163,6 +164,7 @@ export const MESSAGES = {
       linkedin: "LinkedIn",
       github: "GitHub",
       note: "Disponible pour des missions à distance et sur site, partout en France et en Europe.",
+      schedule: "Planifier un appel",
     },
     chat: {
       title: "Assistant du portfolio",
