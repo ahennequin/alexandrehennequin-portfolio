@@ -27,35 +27,37 @@ export async function recreateCollection(): Promise<void> {
   });
 }
 
-export type UpsertPoint = {
+export type UpsertPoint<TPayload = Record<string, unknown>> = {
   id: string;
   vector: number[];
-  payload: Record<string, unknown>;
+  payload: TPayload;
 };
 
-export async function upsertVectors(points: UpsertPoint[]): Promise<void> {
+export async function upsertVectors<TPayload = Record<string, unknown>>(
+  points: UpsertPoint<TPayload>[]
+): Promise<void> {
   if (points.length === 0) return;
   const c = getQdrantClient();
   await c.upsert(COLLECTION_NAME, {
     points: points.map((p) => ({
       id: p.id,
       vector: p.vector,
-      payload: p.payload,
+      payload: p.payload as unknown as Record<string, unknown>,
     })),
   });
 }
 
-export type RetrievalHit = {
+export type RetrievalHit<TPayload = Record<string, unknown>> = {
   id: string;
   score: number;
-  payload: Record<string, unknown>;
+  payload: TPayload;
 };
 
-export async function retrieve(
+export async function retrieve<TPayload = Record<string, unknown>>(
   vector: number[],
   topK = 4,
   lang?: "en" | "fr"
-): Promise<RetrievalHit[]> {
+): Promise<RetrievalHit<TPayload>[]> {
   const c = getQdrantClient();
   const res = await c.query(COLLECTION_NAME, {
     query: vector,
@@ -68,6 +70,6 @@ export async function retrieve(
   return res.points.map((hit) => ({
     id: String(hit.id),
     score: hit.score,
-    payload: (hit.payload as Record<string, unknown>) ?? {},
+    payload: (hit.payload ?? {}) as TPayload,
   }));
 }
