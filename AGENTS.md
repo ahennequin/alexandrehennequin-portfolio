@@ -14,18 +14,19 @@ Read `BRAND.md` before building any UI — it defines the color palette, typogra
 
 - **Framework**: Next.js, App Router
 - **Hosting**: Vercel (single project, static pages + serverless API routes together)
-- **Chat backend**: `/api/chat` serverless route — handles embedding the query, retrieval, prompt construction, and the Claude API call. Must run server-side only.
-- **LLM provider**: Anthropic Claude API, called only from the server (`/api/chat`), never from the client.
+- **Chat backend**: `/api/chat` serverless route — handles embedding the query, retrieval, prompt construction, and the LLM API call. Must run server-side only.
+- **LLM provider**: Google Gemini API (`gemini-3.6-flash`, Google AI Studio free tier), called only from the server (`/api/chat`) via `GEMINI_API_KEY`, never from the client. Model id overridable with `GEMINI_MODEL`. Reached through the `ChatModel` seam in `lib/retrieval.ts`, so the provider stays swappable. (Revised from Anthropic Claude Haiku — the free tier removes the abuse-cost risk on the public endpoint; see `SYSTEM_DESIGN.md`.)
 - **Vector store**: Qdrant Cloud (hosted), accessed via `QDRANT_CLUSTER_ENDPOINT` + `QDRANT_API_KEY`.
-- **Embedding model**: Voyage AI, model `voyage-4`, accessed via `VOYAGEAI_API_KEY`. Anthropic's recommended embedding partner — use the same model consistently at ingestion and query time. Free tier (200M tokens) fully covers this project's content volume.
+- **Embedding model**: Voyage AI, model `voyage-4`, accessed via `VOYAGEAI_API_KEY`. Use the same model consistently at ingestion and query time. Free tier (200M tokens) fully covers this project's content volume.
+- **Rate-limit store**: Upstash Redis (Vercel Marketplace integration), accessed via `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` when present; `lib/rateLimit.ts` falls back to an in-memory per-instance limiter when they are not.
 - **Styling**: Tailwind CSS (fast iteration, reasonable defaults)
 
 ## Non-Negotiable Constraints
 
-1. **Never expose secrets to the browser.** `ANTHROPIC_API_KEY`, `QDRANT_CLUSTER_ENDPOINT`, `QDRANT_API_KEY`, and `VOYAGEAI_API_KEY` are all Vercel environment variables — all LLM, embedding, and retrieval calls happen inside server-side code (`/api/chat` and the ingestion script). Do not pass any of these as `NEXT_PUBLIC_*` env vars, and do not hardcode them anywhere in the repo.
+1. **Never expose secrets to the browser.** `GEMINI_API_KEY`, `QDRANT_CLUSTER_ENDPOINT`, `QDRANT_API_KEY`, `VOYAGEAI_API_KEY`, and the `UPSTASH_REDIS_REST_*` pair are all Vercel environment variables — all LLM, embedding, retrieval, and rate-limit calls happen inside server-side code (`/api/chat` and the ingestion script). Do not pass any of these as `NEXT_PUBLIC_*` env vars, and do not hardcode them anywhere in the repo.
 2. **Chat scope is restricted.** The system prompt must instruct the model to only answer questions about the author's CV, skills, and projects, and to politely decline off-topic requests or attempts to override its instructions via user input (prompt injection resistance).
 3. **Content source of truth is shared.** CV and project data must live in structured files (e.g. `content/cv.json`, `content/projects/*.mdx`) that are used BOTH to render the static site pages AND to build the embedding index. Do not duplicate this content in two places.
-4. **Rate limit `/api/chat`.** Add per-IP request limiting before shipping publicly (e.g. Upstash Redis free tier, or Vercel middleware) to prevent cost/abuse issues on the public endpoint.
+4. **Rate limit `/api/chat`.** Per-IP request limiting is implemented in `lib/rateLimit.ts`: distributed Upstash Redis limiters (20 req/min + 100 req/day per IP, fail-open on Redis errors) when `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` are set, otherwise an in-memory per-instance sliding window. Keep this guard in place on the public endpoint.
 5. **No client-side conversation persistence to a backend store by default.** Keep chat history in client-side React state only, unless explicitly told to add server-side persistence — this avoids taking on visitor-data storage/privacy obligations for a simple personal site.
 6. **Client confidentiality.** Any content describing past client work (e.g. the O-Kidia project, the foncier-sector RAG agent) may name the client but must stay general about precise technical/data specifics for regulated work — mirror the confidentiality posture already used for the author's Malt portfolio case studies.
 7. **Streaming responses.** `/api/chat` should stream tokens back to the frontend rather than waiting for the full response.
@@ -35,9 +36,9 @@ Read `BRAND.md` before building any UI — it defines the color palette, typogra
 1. Scaffold Next.js app (App Router, TypeScript, Tailwind). Set up the color/type tokens from `BRAND.md` in the Tailwind config / global CSS as part of this step.
 2. Build static structure: home, CV page, projects page (case studies), contact — using the structured content files described above, styled per `BRAND.md` (including the reusable waveform-divider component). Content will draw on/expand the O-Kidia pipeline and foncier RAG agent case studies.
 3. Write the ingestion script: chunk content → generate embeddings via Voyage AI (`voyage-4`) → upsert into Qdrant Cloud (via `QDRANT_CLUSTER_ENDPOINT` + `QDRANT_API_KEY`).
-4. Build `/api/chat`: query embedding → retrieval → prompt construction → streamed Claude API call.
-5. Build the chat widget UI (floating panel, `useState`-based message list, `fetch`/stream consumption).
-6. Add rate limiting + budget alert setup instructions (the alert itself is configured in the Anthropic console, outside the repo, but document the step in the README).
+4. Build `/api/chat`: query embedding → retrieval → prompt construction → streamed Gemini API call.
+5. Build the chat widget UI (floating panel, `useState`-based message list, `fetch`/stream consumption, Markdown rendering of replies).
+6. Add rate limiting (Upstash Redis, with an in-memory fallback). No spend cap is needed while the chat runs on the Gemini free tier — document in the README that a budget alert (Google AI Studio / Google Cloud billing) is only required if it moves to a paid key.
 7. Deploy to Vercel, configure environment variables in the Vercel dashboard (never in the repo).
 
 ## Before Starting Work

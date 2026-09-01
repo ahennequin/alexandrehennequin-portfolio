@@ -1,4 +1,4 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, ThinkingLevel } from "@google/genai";
 import { embedQuery } from "@/lib/embeddings";
 import { retrieve, type RetrievalHit } from "@/lib/qdrant";
 import { buildSystemPrompt, buildUserPrompt, formatContext } from "@/lib/prompt";
@@ -54,7 +54,7 @@ async function* geminiModel(args: {
       // Gemini 3 can't switch "thinking" off entirely, but the lowest level
       // keeps the pre-answer pause short; the loop below drops thought parts so
       // the model's scratchpad never reaches the user.
-      thinkingConfig: { thinkingLevel: "low" },
+      thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
     },
   });
 

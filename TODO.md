@@ -13,18 +13,6 @@ in one place).
 
 ---
 
-## ~~2 · Give the chunk payload one owned schema~~ — `Done`
-
-Landed in `lib/vectorIndex.ts`: it owns `ChunkPayload` (`Chunk["metadata"] &
-{ text }`, so a metadata rename is a type error on both sides), `PendingPoint`,
-and `IndexPoint`. `buildIndexPoints()` returns typed points; `reindex(points,
-onProgress?)` owns the recreate + batch-embed + upsert lifecycle, and
-`scripts/ingest.ts` `main()` just wires the two together. `formatContext` takes
-`RetrievalHit<ChunkPayload>[]` and dropped its five `String(… ?? "")` guards;
-`retrieve` / `upsertVectors` are now generic over the payload type.
-
----
-
 ## 3 · Deepen i18n with the operations callers reimplement — `Worth exploring`
 
 **Files:** `lib/i18n.ts`, `components/SiteHeader.tsx`, `components/SiteFooter.tsx`,
