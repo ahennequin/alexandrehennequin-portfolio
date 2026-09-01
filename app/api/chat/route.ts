@@ -22,7 +22,7 @@ export async function POST(req: Request) {
       ? "Trop de requêtes. Veuillez patienter une minute."
       : "Too many requests. Please wait a minute.";
 
-  if (isRateLimited(getClientIp(req.headers))) {
+  if (await isRateLimited(getClientIp(req.headers))) {
     return new Response(JSON.stringify({ error: rateLimitMessage }), {
       status: 429,
       headers: { "Content-Type": "application/json" },
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
     });
   }
 
-  if (!process.env.ANTHROPIC_API_KEY) {
+  if (!process.env.GEMINI_API_KEY) {
     return new Response(JSON.stringify({ error: "Server is not configured." }), {
       status: 500,
       headers: { "Content-Type": "application/json" },

@@ -25,6 +25,25 @@ export async function recreateCollection(): Promise<void> {
   await c.recreateCollection(COLLECTION_NAME, {
     vectors: { size: EMBEDDING_DIMENSION, distance: "Cosine" },
   });
+  // `retrieve()` filters points by `lang`; Qdrant rejects a filter on a field
+  // that has no payload index ("Index required but not found for \"lang\"").
+  // Create it as part of collection setup so every reindex stays queryable.
+  await ensureLangIndex();
+}
+
+/**
+ * Ensure the `lang` payload field has a keyword index so it can be used in
+ * retrieval filters. Safe to call on an existing collection — Qdrant treats a
+ * repeat create as a no-op. Exposed so it can be run against a live collection
+ * without a full reindex.
+ */
+export async function ensureLangIndex(): Promise<void> {
+  const c = getQdrantClient();
+  await c.createPayloadIndex(COLLECTION_NAME, {
+    field_name: "lang",
+    field_schema: "keyword",
+    wait: true,
+  });
 }
 
 export type UpsertPoint<TPayload = Record<string, unknown>> = {

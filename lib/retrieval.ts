@@ -1,4 +1,4 @@
-import Anthropic from "@anthropic-ai/sdk";
+import { GoogleGenAI } from "@google/genai";
 import { embedQuery } from "@/lib/embeddings";
 import { retrieve, type RetrievalHit } from "@/lib/qdrant";
 import { buildSystemPrompt, buildUserPrompt, formatContext } from "@/lib/prompt";
@@ -9,17 +9,17 @@ import type { Locale } from "@/lib/i18n";
 // ChatWidget keeps its own structural copy on the client.
 export type ChatMessage = { role: "user" | "assistant"; content: string };
 
-const MODEL = process.env.CLAUDE_MODEL ?? "claude-3-5-haiku-latest";
+const MODEL = process.env.GEMINI_MODEL ?? "gemini-3.6-flash";
 const MAX_HISTORY_TURNS = 6;
 const TOP_K = 5;
 
 // ── Model seam ──────────────────────────────────────────────────────────────
 // `ChatModel` is a deliberately tiny interface over "given a system prompt and
-// a message list, stream back answer text". The real adapter (`anthropicModel`)
-// wraps `new Anthropic().messages.stream(...)`; a test can pass a recorded fake
-// that replays captured deltas with no API key or network. One real adapter
-// plus that hypothetical test adapter is the whole justification for the seam —
-// no test framework is pulled in here.
+// a message list, stream back answer text". The real adapter (`geminiModel`)
+// wraps `GoogleGenAI().models.generateContentStream(...)`; a test can pass a
+// recorded fake that replays captured deltas with no API key or network. One
+// real adapter plus that hypothetical test adapter is the whole justification
+// for the seam — no test framework is pulled in here.
 export type ChatModel = (args: {
   system: string;
   messages: ChatMessage[];
@@ -35,24 +35,34 @@ export type AnswerDeps = {
   model: ChatModel;
 };
 
-async function* anthropicModel(args: {
+async function* geminiModel(args: {
   system: string;
   messages: ChatMessage[];
 }): AsyncGenerator<string> {
-  const anthropic = new Anthropic();
-  const messageStream = await anthropic.messages.stream({
+  const genai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+  const stream = await genai.models.generateContentStream({
     model: MODEL,
-    max_tokens: 800,
-    system: args.system,
-    messages: args.messages,
+    // Gemini uses "model" for the assistant role and `parts` for content.
+    contents: args.messages.map((m) => ({
+      role: m.role === "assistant" ? "model" : "user",
+      parts: [{ text: m.content }],
+    })),
+    config: {
+      systemInstruction: args.system,
+      maxOutputTokens: 800,
+      // Grounded Q&A over a tiny knowledge base doesn't need deep reasoning.
+      // Gemini 3 can't switch "thinking" off entirely, but the lowest level
+      // keeps the pre-answer pause short; the loop below drops thought parts so
+      // the model's scratchpad never reaches the user.
+      thinkingConfig: { thinkingLevel: "low" },
+    },
   });
 
-  for await (const event of messageStream) {
-    if (
-      event.type === "content_block_delta" &&
-      event.delta.type === "text_delta"
-    ) {
-      yield event.delta.text;
+  for await (const chunk of stream) {
+    // Skip any "thought" parts defensively — only stream the visible answer.
+    const parts = chunk.candidates?.[0]?.content?.parts ?? [];
+    for (const part of parts) {
+      if (part.text && !part.thought) yield part.text;
     }
   }
 }
@@ -60,7 +70,7 @@ async function* anthropicModel(args: {
 export const defaultDeps: AnswerDeps = {
   embed: embedQuery,
   retrieve: (vector, topK, lang) => retrieve<ChunkPayload>(vector, topK, lang),
-  model: anthropicModel,
+  model: geminiModel,
 };
 
 function sanitizeHistory(messages: ChatMessage[]): ChatMessage[] {
@@ -76,7 +86,7 @@ function latestUserQuery(history: ChatMessage[]): string {
   return [...history].reverse().find((m) => m.role === "user")?.content ?? "";
 }
 
-function buildClaudeMessages(
+function buildModelMessages(
   history: ChatMessage[],
   finalUserPrompt: string
 ): ChatMessage[] {
@@ -95,7 +105,7 @@ function buildClaudeMessages(
 /**
  * The RAG answer pipeline as one deep module: take the raw client message list,
  * sanitize it, then embed → retrieve → format context → build prompts →
- * assemble Claude messages → stream the model call. The query is the latest
+ * assemble model messages → stream the model call. The query is the latest
  * user turn, so callers pass the whole conversation and nothing else. Yields
  * answer text chunks (token deltas) and nothing else.
  */
@@ -111,10 +121,10 @@ export async function* streamAnswer(
   const hits = await deps.retrieve(queryVector, TOP_K, lang);
   const context = formatContext(hits);
   const userPrompt = buildUserPrompt(query, context);
-  const claudeMessages = buildClaudeMessages(history, userPrompt);
+  const modelMessages = buildModelMessages(history, userPrompt);
   const system = buildSystemPrompt(lang);
 
-  for await (const chunk of deps.model({ system, messages: claudeMessages })) {
+  for await (const chunk of deps.model({ system, messages: modelMessages })) {
     yield chunk;
   }
 }

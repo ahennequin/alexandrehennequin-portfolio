@@ -2,9 +2,41 @@
 
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { getMessages, type Locale } from "@/lib/i18n";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
+
+// Assistant replies come back as Markdown. Render a safe subset (react-markdown
+// ignores raw HTML by default) with spacing/list styles scoped to this bubble via
+// Tailwind arbitrary-child variants, so no typography plugin is needed.
+function AssistantMarkdown({ content }: { content: string }) {
+  return (
+    <div
+      className="space-y-2 [&_a]:text-signal [&_a]:underline [&_code]:rounded [&_code]:bg-graphite/15 [&_code]:px-1 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[0.85em] [&_h1]:font-semibold [&_h2]:font-semibold [&_h3]:font-semibold [&_li]:my-0.5 [&_ol]:list-decimal [&_ol]:pl-5 [&_pre]:overflow-x-auto [&_pre]:rounded [&_pre]:bg-graphite/15 [&_pre]:p-2 [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_ul]:list-disc [&_ul]:pl-5"
+    >
+      <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+    </div>
+  );
+}
+
+// Shown in the assistant bubble while the model is processing and hasn't
+// streamed its first token yet: three dots bouncing in sequence.
+function ThinkingDots() {
+  return (
+    <span
+      className="inline-flex items-center gap-1 py-1 align-middle [&>span]:h-1.5 [&>span]:w-1.5 [&>span]:rounded-full [&>span]:bg-signal"
+      role="status"
+      aria-label="Assistant is thinking"
+    >
+      {/* Inline delay so it wins over the `animation` shorthand's own delay. */}
+      <span className="animate-bounce-dot" style={{ animationDelay: "-0.32s" }} />
+      <span className="animate-bounce-dot" style={{ animationDelay: "-0.16s" }} />
+      <span className="animate-bounce-dot" />
+    </span>
+  );
+}
 
 export default function ChatWidget() {
   const pathname = usePathname();
@@ -24,6 +56,21 @@ export default function ChatWidget() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, open]);
 
+  // ChatWidget lives in the shared root layout, so switching language client-side
+  // doesn't remount it and the greeting captured in useState stays in the old
+  // locale. Re-localize it here, but only while the conversation is still just
+  // that greeting — never rewrite an exchange the visitor has already started.
+  // This syncs React state to the URL-derived locale, an external system, and
+  // must keep any in-progress conversation intact, so it can't move into render.
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- see comment above
+    setMessages((prev) =>
+      prev.length === 1 && prev[0].role === "assistant"
+        ? [{ role: "assistant", content: t.chat.greeting }]
+        : prev
+    );
+  }, [t.chat.greeting]);
+
   async function sendMessage(content: string) {
     const trimmed = content.trim();
     if (!trimmed || streaming) return;
@@ -32,9 +79,23 @@ export default function ChatWidget() {
       ...messages,
       { role: "user", content: trimmed },
     ];
-    setMessages(nextMessages);
+    // Add the user turn AND an empty assistant turn up front. The empty bubble
+    // renders <ThinkingDots /> immediately, so the loader is visible for the
+    // whole wait before the first token — the response can be buffered for
+    // several seconds. The stream then fills this same bubble in place.
+    setMessages([...nextMessages, { role: "assistant", content: "" }]);
     setInput("");
     setStreaming(true);
+
+    const setAssistant = (updater: (current: string) => string) =>
+      setMessages((prev) => {
+        const copy = [...prev];
+        const last = copy[copy.length - 1];
+        if (last && last.role === "assistant") {
+          copy[copy.length - 1] = { ...last, content: updater(last.content) };
+        }
+        return copy;
+      });
 
     try {
       const res = await fetch("/api/chat", {
@@ -51,34 +112,25 @@ export default function ChatWidget() {
         } catch {
           // ignore, fall back to generic message
         }
-        setMessages((prev) => [...prev, { role: "assistant", content: detail }]);
+        setAssistant(() => detail);
         return;
       }
 
       const reader = res.body?.getReader();
-      if (!reader) return;
+      if (!reader) {
+        setAssistant(() => t.chat.networkError);
+        return;
+      }
 
       const decoder = new TextDecoder();
-      setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
-
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
         const chunk = decoder.decode(value, { stream: true });
-        setMessages((prev) => {
-          const copy = [...prev];
-          const last = copy[copy.length - 1];
-          if (last && last.role === "assistant") {
-            copy[copy.length - 1] = { ...last, content: last.content + chunk };
-          }
-          return copy;
-        });
+        setAssistant((current) => current + chunk);
       }
     } catch {
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: t.chat.networkError },
-      ]);
+      setAssistant((current) => current || t.chat.networkError);
     } finally {
       setStreaming(false);
     }
@@ -132,10 +184,20 @@ export default function ChatWidget() {
           </div>
           <button
             onClick={() => setOpen(false)}
-            className="px-2 py-1 font-mono text-xs text-graphite hover:text-ink"
+            className="-mr-1 flex h-7 w-7 shrink-0 items-center justify-center text-graphite transition-colors hover:text-ink"
             aria-label={t.chat.close}
           >
-            {t.chat.close}
+            <svg
+              viewBox="0 0 16 16"
+              className="h-3.5 w-3.5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="square"
+              aria-hidden="true"
+            >
+              <path d="M2 2l12 12M14 2L2 14" />
+            </svg>
           </button>
         </header>
 
@@ -148,15 +210,25 @@ export default function ChatWidget() {
               }`}
             >
               <div
-                className={`max-w-[85%] whitespace-pre-wrap px-3 py-2 text-sm leading-relaxed ${
+                className={`max-w-[85%] px-3 py-2 text-sm leading-relaxed ${
                   message.role === "user"
-                    ? "bg-signal text-paper"
+                    ? "whitespace-pre-wrap bg-signal text-paper"
                     : "border border-graphite/20 bg-transparent text-ink"
                 }`}
               >
-                {message.content}
+                {message.role === "assistant" ? (
+                  message.content ? (
+                    <AssistantMarkdown content={message.content} />
+                  ) : (
+                    streaming &&
+                    i === messages.length - 1 && <ThinkingDots />
+                  )
+                ) : (
+                  message.content
+                )}
                 {streaming &&
                   message.role === "assistant" &&
+                  message.content &&
                   i === messages.length - 1 && (
                     <span className="ml-0.5 inline-block h-3 w-1.5 animate-pulse bg-signal align-middle" />
                   )}
@@ -206,13 +278,15 @@ export default function ChatWidget() {
         </form>
       </section>
 
-      <button
-        onClick={() => setOpen((v) => !v)}
-        className="fixed bottom-4 right-4 z-50 border border-signal bg-signal px-4 py-3 font-mono text-xs font-medium uppercase tracking-[0.15em] text-paper transition-colors hover:bg-transparent hover:text-signal sm:bottom-6 sm:right-6"
-        aria-label={t.chat.title}
-      >
-        {open ? t.chat.close : t.chat.ask}
-      </button>
+      {!open && (
+        <button
+          onClick={() => setOpen(true)}
+          className="fixed bottom-4 right-4 z-50 border border-signal bg-signal px-4 py-3 font-mono text-xs font-medium uppercase tracking-[0.15em] text-paper transition-colors hover:bg-transparent hover:text-signal sm:bottom-6 sm:right-6"
+          aria-label={t.chat.title}
+        >
+          {t.chat.ask}
+        </button>
+      )}
     </>
   );
 }
