@@ -1,6 +1,10 @@
 import { getCv } from "@/lib/content";
 import { getMessages, type Locale } from "@/lib/i18n";
 import WaveformDivider from "@/components/WaveformDivider";
+import CalendlyEmbed from "@/components/CalendlyEmbed";
+
+const CALENDLY_URL =
+  "https://calendly.com/alexandredothennequin/new-meeting?hide_event_type_details=1&hide_gdpr_banner=1";
 
 export default async function ContactPage({ locale }: { locale: Locale }) {
   const cv = await getCv(locale);
@@ -63,6 +67,17 @@ export default async function ContactPage({ locale }: { locale: Locale }) {
       <p className="mt-10 max-w-2xl font-mono text-xs leading-relaxed text-graphite">
         {cv.location}. {t.contact.note}
       </p>
+
+      <WaveformDivider className="mt-16 text-signal" />
+
+      <div className="mt-12">
+        <h2 className="font-mono text-xs uppercase tracking-[0.2em] text-signal">
+          {t.contact.schedule}
+        </h2>
+        <div className="mt-6">
+          <CalendlyEmbed url={CALENDLY_URL} />
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,40 +1,17 @@
-import { buildChunks } from "../lib/chunks.ts";
-import { embedTexts } from "../lib/embeddings.ts";
-import {
-  COLLECTION_NAME,
-  getQdrantClient,
-  recreateCollection,
-  upsertVectors,
-} from "../lib/qdrant.ts";
-
-const BATCH_SIZE = 64;
+import { COLLECTION_NAME, getQdrantClient } from "../lib/qdrant.ts";
+import { buildIndexPoints, reindex } from "../lib/vectorIndex.ts";
 
 async function main() {
-  const chunks = await buildChunks();
-  console.log(`Built ${chunks.length} chunks`);
+  const points = await buildIndexPoints();
+  console.log(`Built ${points.length} points`);
 
-  const texts = chunks.map((c) => c.text);
-  const vectors: number[][] = [];
-  for (let i = 0; i < texts.length; i += BATCH_SIZE) {
-    const batch = texts.slice(i, i + BATCH_SIZE);
-    const batchVectors = await embedTexts(batch, "document");
-    vectors.push(...batchVectors);
-    console.log(`Embedded ${Math.min(i + BATCH_SIZE, texts.length)}/${texts.length}`);
-  }
+  console.log(`Recreating collection "${COLLECTION_NAME}" and indexing...`);
+  const count = await reindex(points, (embedded, total) =>
+    console.log(`Embedded ${embedded}/${total}`)
+  );
+  console.log(`Upserted ${count} points into "${COLLECTION_NAME}"`);
 
-  const points = chunks.map((c, i) => ({
-    id: c.id,
-    vector: vectors[i],
-    payload: { ...c.metadata, text: c.text },
-  }));
-
-  console.log(`Recreating collection "${COLLECTION_NAME}"...`);
-  await recreateCollection();
-  await upsertVectors(points);
-  console.log(`Upserted ${points.length} points into "${COLLECTION_NAME}"`);
-
-  const client = getQdrantClient();
-  const info = await client.getCollection(COLLECTION_NAME);
+  const info = await getQdrantClient().getCollection(COLLECTION_NAME);
   console.log(
     `Collection "${COLLECTION_NAME}" now has ${info.points_count ?? "?"} points`
   );

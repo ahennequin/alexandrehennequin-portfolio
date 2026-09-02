@@ -1,4 +1,5 @@
 import type { RetrievalHit } from "./qdrant";
+import type { ChunkPayload } from "./vectorIndex";
 import type { Locale } from "./i18n";
 
 const EN_SYSTEM_PROMPT = `You are the AI assistant embedded in Alexandre Hennequin's personal portfolio website. Your job is to answer visitors' questions about Alexandre's CV, skills, experience, and projects.
@@ -29,17 +30,12 @@ export function buildSystemPrompt(lang: Locale): string {
   return lang === "fr" ? FR_SYSTEM_PROMPT : EN_SYSTEM_PROMPT;
 }
 
-export function formatContext(hits: RetrievalHit[]): string {
+export function formatContext(hits: RetrievalHit<ChunkPayload>[]): string {
   if (hits.length === 0) {
     return "No relevant context was retrieved.";
   }
   return hits
-    .map((hit) => {
-      const source = String(hit.payload.source ?? "unknown");
-      const section = String(hit.payload.section ?? "");
-      const title = String(hit.payload.title ?? "");
-      const text = String(hit.payload.text ?? "");
-      const lang = String(hit.payload.lang ?? "");
+    .map(({ payload: { source, section, title, lang, text } }) => {
       return `[Source: ${source} | Section: ${section} | Title: ${title} | Lang: ${lang}]\n${text}`;
     })
     .join("\n\n---\n\n");

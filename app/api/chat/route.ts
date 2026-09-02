@@ -1,42 +1,9 @@
-import Anthropic from "@anthropic-ai/sdk";
-import { embedQuery } from "@/lib/embeddings";
-import { retrieve } from "@/lib/qdrant";
-import { buildSystemPrompt, buildUserPrompt, formatContext } from "@/lib/prompt";
 import { getClientIp, isRateLimited } from "@/lib/rateLimit";
 import { isLocale, type Locale } from "@/lib/i18n";
+import { streamAnswer, type ChatMessage } from "@/lib/retrieval";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
-
-const MODEL = process.env.CLAUDE_MODEL ?? "claude-3-5-haiku-latest";
-const MAX_HISTORY_TURNS = 6;
-
-type ChatMessage = { role: "user" | "assistant"; content: string };
-
-function sanitizeHistory(messages: ChatMessage[]): ChatMessage[] {
-  return messages.filter(
-    (m) =>
-      (m.role === "user" || m.role === "assistant") &&
-      typeof m.content === "string" &&
-      m.content.trim().length > 0
-  );
-}
-
-function buildClaudeMessages(
-  messages: ChatMessage[],
-  finalUserPrompt: string
-): ChatMessage[] {
-  let history = sanitizeHistory(messages);
-  // First turn must be a user message.
-  while (history.length > 0 && history[0].role !== "user") history.shift();
-  // Keep the most recent turns.
-  history = history.slice(-MAX_HISTORY_TURNS);
-  // Drop any trailing user turn — it is replaced by the augmented prompt.
-  while (history.length > 0 && history[history.length - 1].role === "user") {
-    history.pop();
-  }
-  return [...history, { role: "user", content: finalUserPrompt }];
-}
 
 export async function POST(req: Request) {
   let body: { messages?: ChatMessage[]; lang?: string };
@@ -55,7 +22,7 @@ export async function POST(req: Request) {
       ? "Trop de requêtes. Veuillez patienter une minute."
       : "Too many requests. Please wait a minute.";
 
-  if (isRateLimited(getClientIp(req.headers))) {
+  if (await isRateLimited(getClientIp(req.headers))) {
     return new Response(JSON.stringify({ error: rateLimitMessage }), {
       status: 429,
       headers: { "Content-Type": "application/json" },
@@ -69,41 +36,20 @@ export async function POST(req: Request) {
     });
   }
 
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return new Response(
-      JSON.stringify({ error: "Server is not configured." }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
-    );
+  if (!process.env.GEMINI_API_KEY) {
+    return new Response(JSON.stringify({ error: "Server is not configured." }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 
-  const history = sanitizeHistory(body.messages);
-  const lastUserMessage = [...history].reverse().find((m) => m.role === "user");
-  const query = lastUserMessage?.content ?? "";
+  const messages = body.messages;
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
     async start(controller) {
       try {
-        const queryVector = await embedQuery(query);
-        const hits = await retrieve(queryVector, 5, lang);
-        const context = formatContext(hits);
-        const userPrompt = buildUserPrompt(query, context);
-        const claudeMessages = buildClaudeMessages(history, userPrompt);
-
-        const anthropic = new Anthropic();
-        const messageStream = await anthropic.messages.stream({
-          model: MODEL,
-          max_tokens: 800,
-          system: buildSystemPrompt(lang),
-          messages: claudeMessages,
-        });
-
-        for await (const event of messageStream) {
-          if (
-            event.type === "content_block_delta" &&
-            event.delta.type === "text_delta"
-          ) {
-            controller.enqueue(encoder.encode(event.delta.text));
-          }
+        for await (const chunk of streamAnswer({ messages, lang })) {
+          controller.enqueue(encoder.encode(chunk));
         }
       } catch (err) {
         console.error("/api/chat error:", err);
