@@ -24,6 +24,13 @@ jobs:
           node-version: 24
           cache: npm
 
+      # Pin npm: the version bundled with Node 24 drifts across patch releases,
+      # and npm 11.6.x changed how bundled sub-deps are recorded, so a lockfile
+      # written by one patch can be rejected as "out of sync" by another
+      # (npm/cli#8805). Keep this in step with the npm used to regenerate
+      # package-lock.json locally.
+      - run: npm install -g npm@11.6.2
+
       - run: npm ci
 
       - name: Run ingestion
