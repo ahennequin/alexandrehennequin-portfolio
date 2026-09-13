@@ -106,7 +106,7 @@ export default async function ProjectDetailPage({
                     className="inline-flex items-center gap-1.5 font-mono text-xs text-signal hover:underline"
                   >
                     <ExternalLinkIcon className="h-3.5 w-3.5" />
-                    {t.cv.scholar}
+                    {frontmatter.link.replace(/^https?:\/\//, "").replace(/\/$/, "")}
                   </Link>
                 </dd>
               </div>

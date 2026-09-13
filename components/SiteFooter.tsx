@@ -5,22 +5,31 @@ import { usePathname } from "next/navigation";
 import { getMessages } from "@/lib/i18n";
 import ExternalLinkIcon from "@/components/ExternalLinkIcon";
 
-export default function SiteFooter() {
+export default function SiteFooter({
+  location,
+  linkedin,
+  github,
+}: {
+  location: string;
+  linkedin: string;
+  github: string;
+}) {
   const pathname = usePathname();
   const locale = pathname.startsWith("/fr") ? "fr" : "en";
   const t = getMessages(locale);
   const contactHref = locale === "fr" ? "/fr/contact" : "/contact";
+  const city = location.split(" — ")[0];
 
   return (
     <footer className="border-t border-graphite/20">
       <div className="mx-auto flex max-w-4xl flex-col gap-3 px-6 py-8 font-mono text-xs text-graphite sm:flex-row sm:items-center sm:justify-between">
-        <p>© {new Date().getFullYear()} Alexandre Hennequin — Marseille, France</p>
+        <p>© {new Date().getFullYear()} Alexandre Hennequin — {city}</p>
         <div className="flex items-center gap-5">
           <Link href={contactHref} className="hover:text-signal">
             {t.footer.contact}
           </Link>
           <a
-            href="https://www.linkedin.com/in/alexandrehennequin"
+            href={linkedin}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 hover:text-signal"
@@ -29,7 +38,7 @@ export default function SiteFooter() {
             {t.footer.linkedin}
           </a>
           <a
-            href="https://github.com/alexandrehennequin"
+            href={github}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 hover:text-signal"
