@@ -6,6 +6,7 @@ import SiteFooter from "@/components/SiteFooter";
 import ChatWidget from "@/components/ChatWidget";
 import HtmlLangSetter from "@/components/HtmlLangSetter";
 import { Analytics } from "@vercel/analytics/next";
+import { getCv } from "@/lib/content";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -33,11 +34,13 @@ export const metadata: Metadata = {
     "Independent AI/Data Science consultant based in Marseille, France — trained in cognitive science research (PhD, CNRS), building LLM systems, RAG pipelines, and data platforms that hold up in production.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cv = await getCv();
+
   return (
     <html
       lang="en"
@@ -47,7 +50,7 @@ export default function RootLayout({
         <HtmlLangSetter />
         <SiteHeader />
         <main className="flex-1">{children}</main>
-        <SiteFooter />
+        <SiteFooter location={cv.location} linkedin={cv.linkedin} github={cv.github} />
         <ChatWidget />
         <Analytics />
       </body>

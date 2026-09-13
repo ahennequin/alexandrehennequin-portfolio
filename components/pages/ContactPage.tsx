@@ -32,13 +32,13 @@ export default async function ContactPage({ locale }: { locale: Locale }) {
           },
           {
             label: t.contact.linkedin,
-            value: "linkedin.com/in/alexandrehennequin",
-            href: "https://www.linkedin.com/in/alexandrehennequin",
+            value: cv.linkedin.replace(/^https?:\/\//, "").replace(/\/$/, ""),
+            href: cv.linkedin,
           },
           {
             label: t.contact.github,
-            value: "github.com/alexandrehennequin",
-            href: "https://github.com/ahennequin",
+            value: cv.github.replace(/^https?:\/\//, "").replace(/\/$/, ""),
+            href: cv.github,
           },
         ].map((item) => (
           <div
