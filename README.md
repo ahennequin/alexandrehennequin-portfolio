@@ -77,12 +77,11 @@ Chat history is kept in client-side React state only — no visitor data is pers
 
 ## Lead CRM link tracking
 
-Outreach messages from the owner's private Lead CRM carry a discreet personal link, `https://alexandrehennequin.com/r/<code>`, where `<code>` is 10 lowercase hex characters, one per contact. Code: `lib/crmTracking.ts`, `app/r/[code]/route.ts`, `proxy.ts`.
+Outreach messages from the owner's private Lead CRM carry a discreet personal link, `https://alexandrehennequin.com/r/<code>`, where `<code>` is 10 lowercase hex characters, one per contact. Code: `lib/crmTracking.ts`, `app/r/[code]/route.ts`.
 
-- **`/r/<code>`** always answers `302` to the home page (the destination never carries the code). For a valid code and a non-bot user agent, it sets a 30-minute `HttpOnly` session cookie `lc_ref=<code>` and, after the response is sent (`after()`), reports a `click` to the CRM. Invalid codes, bots/link scanners and `HEAD` requests are redirected without cookie or report.
-- **Visits:** `proxy.ts` runs only for requests carrying `lc_ref`; each page view (not assets, API calls or prefetches) is reported as a `visit` with its path, via `waitUntil`. Client-side navigations to pages the router already prefetched may not reach the server, so visit counts are best-effort.
-- **Report:** `POST <CRM_URL>/api/portfolio-events` with JSON `{ eventId, code, kind, path? }`, header `X-Portfolio-Timestamp` (Unix seconds) and `X-Portfolio-Signature` = hex HMAC-SHA256 of `<timestamp>.<raw body>` keyed with `CRM_TRACKING_SECRET`. 3-second timeout; every failure is ignored, so a down CRM or an unset `CRM_URL` / `CRM_TRACKING_SECRET` never delays or breaks the redirect or the page.
-- **Privacy:** no open tracking, pixels or third-party trackers. The privacy page (`/privacy`, `/fr/privacy`, linked from the footer and from every first CRM message) describes this; keep it in step with any change here.
+- **`/r/<code>`** always answers `302` to the home page (the destination never carries the code). For a valid code and a non-bot user agent, after the response is sent (`after()`), it reports a `click` to the CRM. Invalid codes, bots/link scanners and `HEAD` requests are redirected without a report. No cookie is set and later page views are not reported.
+- **Report:** `POST <CRM_URL>/api/portfolio-events` with JSON `{ eventId, code, kind: "click" }`, header `X-Portfolio-Timestamp` (Unix seconds) and `X-Portfolio-Signature` = hex HMAC-SHA256 of `<timestamp>.<raw body>` keyed with `CRM_TRACKING_SECRET`. 3-second timeout; every failure is ignored, so a down CRM or an unset `CRM_URL` / `CRM_TRACKING_SECRET` never delays or breaks the redirect.
+- **Privacy:** no cookie, open tracking, pixels or third-party trackers. The privacy page (`/privacy`, `/fr/privacy`, linked from the footer and from every first CRM message) describes this; keep it in step with any change here.
 - **Secret:** set `CRM_TRACKING_SECRET` (32+ characters) only as a server-side Vercel env var, never as `NEXT_PUBLIC_*`, and to the same value as the CRM's `PORTFOLIO_TRACKING_SECRET`.
 
 `npm test` runs the unit tests (`node --test`): code format, signature scheme, and redirect behaviour with the CRM down or unconfigured.
@@ -92,7 +91,7 @@ Outreach messages from the owner's private Lead CRM carry a discreet personal li
 1. Push to the repo and import into Vercel (or `vercel deploy`).
 2. Add the four env vars above in Project → Settings → Environment Variables.
 3. Run `npm run ingest` once (with the same env vars) to populate the vector index — from your machine or a CI job.
-4. Deploy. `app/api/chat` and `app/r/[code]` are the serverless routes (plus `proxy.ts` for link-tracked sessions); everything else is static.
+4. Deploy. `app/api/chat` and `app/r/[code]` are the serverless routes; everything else is static.
 
 ## Content
 

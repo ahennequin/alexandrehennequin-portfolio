@@ -43,10 +43,10 @@ function sections(locale: Locale, email: string): Section[] {
         ],
       },
       {
-        title: "Lien personnel et visites",
+        title: "Lien personnel",
         body: [
-          "Mes messages contiennent un lien vers ce site avec un code court propre à chaque contact (par exemple /r/3f9a1c0b2e). Ce lien est personnel : le suivre, ainsi que les pages de ce site consultées ensuite, est enregistré dans votre fiche, 3 ans au plus, et supprimé avec le reste de vos données.",
-          "Pour relier ces pages au lien, un cookie technique (lc_ref) contenant uniquement ce code est déposé pour 30 minutes, seulement quand le lien est suivi. Aucun autre cookie ni traceur tiers n'est utilisé à cette fin.",
+          "Mes messages contiennent un lien vers ce site avec un code court propre à chaque contact (par exemple /r/3f9a1c0b2e). Ce lien est personnel : le fait de le suivre est enregistré dans votre fiche, 3 ans au plus, et supprimé avec le reste de vos données.",
+          "Seul ce clic est enregistré : aucun cookie n'est déposé et les pages consultées ensuite ne sont pas suivies.",
           "Aucun suivi d'ouverture : les emails sont en texte brut, sans pixel ni image de suivi.",
         ],
       },
@@ -59,7 +59,7 @@ function sections(locale: Locale, email: string): Section[] {
       {
         title: "Hébergement",
         body: [
-          "Ce site est hébergé par Vercel, qui fournit aussi des statistiques de fréquentation agrégées sans cookie. Les questions posées à l'assistant du site sont transmises aux services d'IA qui produisent la réponse et ne sont pas conservées par ce site. Le CRM est une application privée, hébergée séparément de ce site chez un hébergeur cloud, accessible à moi seul.",
+          "Ce site est hébergé par Vercel, qui fournit aussi des statistiques de fréquentation agrégées sans cookie. Les questions posées à l'assistant du site sont transmises à l'API Gemini de Google pour produire la réponse ; les conditions de Google lui permettent de les utiliser pour améliorer ses produits. Pour limiter les abus de l'assistant, l'adresse IP des visiteurs qui l'utilisent est conservée au plus un jour. Le CRM est une application privée, hébergée séparément de ce site chez un hébergeur cloud, accessible à moi seul.",
         ],
       },
       {
@@ -106,10 +106,10 @@ function sections(locale: Locale, email: string): Section[] {
       ],
     },
     {
-      title: "Personal link and visits",
+      title: "Personal link",
       body: [
-        "My messages include a link to this site with a short code unique to each contact (for example /r/3f9a1c0b2e). The link is personal: following it, and the pages of this site viewed afterwards, are recorded on your contact record for 3 years at most and deleted with the rest of your data.",
-        "To connect those pages to the link, a functional cookie (lc_ref) holding only that code is set for 30 minutes, and only when the link is followed. No other cookie or third-party tracker is used for this.",
+        "My messages include a link to this site with a short code unique to each contact (for example /r/3f9a1c0b2e). The link is personal: following it is recorded on your contact record for 3 years at most and deleted with the rest of your data.",
+        "Only that click is recorded: no cookie is set and the pages viewed afterwards are not tracked.",
         "No open tracking: emails are plain text, with no tracking pixel or image.",
       ],
     },
@@ -122,7 +122,7 @@ function sections(locale: Locale, email: string): Section[] {
     {
       title: "Hosting",
       body: [
-        "This site is hosted by Vercel, which also provides aggregate, cookie-free visit statistics. Questions asked to the site's assistant are sent to the AI services that generate the answer and are not stored by this site. The CRM is a private application, hosted separately from this site with a cloud hosting provider and accessible to me only.",
+        "This site is hosted by Vercel, which also provides aggregate, cookie-free visit statistics. Questions asked to the site's assistant are sent to Google's Gemini API to generate the answer; Google's terms allow it to use them to improve its products. To limit abuse of the assistant, the IP address of visitors who use it is kept for up to one day. The CRM is a private application, hosted separately from this site with a cloud hosting provider and accessible to me only.",
       ],
     },
     {

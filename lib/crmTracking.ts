@@ -1,9 +1,8 @@
 // Per-lead link tracking for the Lead CRM (OUT-7).
 //
 // Outreach messages carry `https://alexandrehennequin.com/r/<code>`. Following
-// that link redirects to the home page and reports a signed `click` to the CRM;
-// pages viewed afterwards in the same browsing session are reported as
-// `visit`s. Nothing else is tracked: no open pixels, no third-party trackers.
+// that link redirects to the home page and reports a signed `click` to the CRM.
+// Nothing else is tracked: no cookie, no open pixels, no third-party trackers.
 //
 // Server-side only. `CRM_TRACKING_SECRET` must never reach the browser.
 //
@@ -17,11 +16,6 @@ import { createHmac, randomUUID } from "node:crypto";
 /** 10 lowercase hex characters, one per Lead. */
 export const CODE_PATTERN = /^[0-9a-f]{10}$/;
 
-/** Session cookie remembering the code, so later page views can be reported. */
-export const REF_COOKIE = "lc_ref";
-/** 30 minutes: one browsing session. */
-export const REF_COOKIE_MAX_AGE = 1800;
-
 /** Report timeout. Reports always run after the response is sent. */
 export const REPORT_TIMEOUT_MS = 3000;
 
@@ -32,8 +26,7 @@ const BOT_PATTERN = /bot|crawl|spider|preview|scan|monitor|curl|wget|python|head
 export type CrmEvent = {
   eventId: string;
   code: string;
-  kind: "click" | "visit";
-  path?: string;
+  kind: "click";
 };
 
 export type ReportDeps = {
@@ -56,10 +49,8 @@ export function signReport(secret: string, timestamp: string, body: string): str
   return createHmac("sha256", secret).update(`${timestamp}.${body}`).digest("hex");
 }
 
-export function newEvent(code: string, kind: CrmEvent["kind"], path?: string): CrmEvent {
-  return path === undefined
-    ? { eventId: randomUUID(), code, kind }
-    : { eventId: randomUUID(), code, kind, path };
+export function newClick(code: string): CrmEvent {
+  return { eventId: randomUUID(), code, kind: "click" };
 }
 
 /**
@@ -97,8 +88,8 @@ export async function reportToCrm(event: CrmEvent, deps: ReportDeps = {}): Promi
 /**
  * Handles `GET /r/<code>`: always answers with a 302 to the home page (the
  * destination never carries the code). For a valid code and a non-bot visitor,
- * it sets the session cookie and hands the `click` report to `schedule`, which
- * runs it after the response is sent (`after()` in the route handler).
+ * it hands the `click` report to `schedule`, which runs it after the response
+ * is sent (`after()` in the route handler).
  */
 export function handleLeadLink(
   requestUrl: string,
@@ -114,49 +105,12 @@ export function handleLeadLink(
   });
 
   if (isValidCode(code) && !isLikelyBot(userAgent)) {
-    const secure = new URL(requestUrl).protocol === "https:" ? "; Secure" : "";
-    headers.append(
-      "Set-Cookie",
-      `${REF_COOKIE}=${code}; Path=/; Max-Age=${REF_COOKIE_MAX_AGE}; HttpOnly; SameSite=Lax${secure}`
-    );
     try {
-      schedule(() => reportToCrm(newEvent(code, "click"), deps));
+      schedule(() => reportToCrm(newClick(code), deps));
     } catch {
       // Scheduling must never break the redirect.
     }
   }
 
   return new Response(null, { status: 302, headers });
-}
-
-/**
- * Whether a request through the proxy is a page view worth a `visit` report:
- * a GET for a page (not an asset, API call or prefetch) by a non-bot visitor
- * carrying a valid session cookie.
- */
-export function visitToReport(request: {
-  method: string;
-  pathname: string;
-  refCookie: string | undefined;
-  headers: Headers;
-}): CrmEvent | null {
-  const { method, pathname, refCookie, headers } = request;
-  if (method !== "GET" || !isValidCode(refCookie)) return null;
-  if (isLikelyBot(headers.get("user-agent"))) return null;
-  if (
-    headers.get("next-router-prefetch") ||
-    headers.get("purpose") === "prefetch" ||
-    headers.get("sec-purpose")?.includes("prefetch")
-  ) {
-    return null;
-  }
-  if (
-    pathname.startsWith("/api/") ||
-    pathname.startsWith("/_next/") ||
-    pathname.startsWith("/r/") ||
-    /\.[^/]+$/.test(pathname)
-  ) {
-    return null;
-  }
-  return newEvent(refCookie, "visit", pathname);
 }

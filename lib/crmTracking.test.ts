@@ -6,7 +6,6 @@ import {
   isValidCode,
   reportToCrm,
   signReport,
-  visitToReport,
   type CrmEvent,
 } from "./crmTracking.ts";
 
@@ -78,7 +77,7 @@ test("report: never throws when the CRM is down or refuses", async () => {
   assert.equal(await reportToCrm(event, { crmUrl: "not a url", secret: SECRET, fetchImpl: down }), false);
 });
 
-test("redirect: 302 to the home page with the cookie, click scheduled after the response", async () => {
+test("redirect: 302 to the home page without a cookie, click scheduled after the response", async () => {
   const scheduled: Array<() => Promise<unknown>> = [];
   const response = handleLeadLink("https://alexandrehennequin.com/r/3f9a1c0b2e", "3f9a1c0b2e", BROWSER_UA, (task) => scheduled.push(task), {
     crmUrl: "https://crm.example.com",
@@ -89,8 +88,7 @@ test("redirect: 302 to the home page with the cookie, click scheduled after the 
   assert.equal(response.status, 302);
   assert.equal(response.headers.get("location"), "https://alexandrehennequin.com/");
   assert.equal(response.headers.get("cache-control"), "no-store");
-  const cookie = response.headers.get("set-cookie") ?? "";
-  assert.match(cookie, /^lc_ref=3f9a1c0b2e; Path=\/; Max-Age=1800; HttpOnly; SameSite=Lax; Secure$/);
+  assert.equal(response.headers.get("set-cookie"), null);
   assert.equal(scheduled.length, 1);
   assert.equal(await scheduled[0](), true);
 });
@@ -127,7 +125,7 @@ test("redirect: works with the secret unset and when scheduling itself throws", 
   assert.equal(broken.headers.get("location"), "https://alexandrehennequin.com/");
 });
 
-test("redirect: invalid codes and bots are redirected without cookie or report", () => {
+test("redirect: invalid codes and bots are redirected without report", () => {
   for (const [code, ua] of [
     ["3F9A1C0B2E", BROWSER_UA],
     ["nothex!!!!", BROWSER_UA],
@@ -142,32 +140,4 @@ test("redirect: invalid codes and bots are redirected without cookie or report",
     assert.equal(response.headers.get("set-cookie"), null);
     assert.equal(scheduled, 0);
   }
-});
-
-test("redirect: no Secure flag on plain-http local development", () => {
-  const response = handleLeadLink("http://localhost:3000/r/3f9a1c0b2e", "3f9a1c0b2e", BROWSER_UA, () => {});
-  assert.doesNotMatch(response.headers.get("set-cookie") ?? "", /Secure/);
-});
-
-test("visit: page GETs with a valid cookie only, never assets, API calls or prefetches", () => {
-  const base = { method: "GET", refCookie: "3f9a1c0b2e", headers: new Headers({ "user-agent": BROWSER_UA }) };
-  const visit = visitToReport({ ...base, pathname: "/projects/rag-chat" });
-  assert.ok(visit);
-  assert.equal(visit.kind, "visit");
-  assert.equal(visit.code, "3f9a1c0b2e");
-  assert.equal(visit.path, "/projects/rag-chat");
-  assert.match(visit.eventId, /^[A-Za-z0-9_-]{8,100}$/);
-
-  assert.equal(visitToReport({ ...base, pathname: "/api/chat" }), null);
-  assert.equal(visitToReport({ ...base, pathname: "/_next/static/chunk.js" }), null);
-  assert.equal(visitToReport({ ...base, pathname: "/portrait.jpg" }), null);
-  assert.equal(visitToReport({ ...base, pathname: "/r/3f9a1c0b2e" }), null);
-  assert.equal(visitToReport({ ...base, method: "POST", pathname: "/cv" }), null);
-  assert.equal(visitToReport({ ...base, refCookie: undefined, pathname: "/cv" }), null);
-  assert.equal(visitToReport({ ...base, refCookie: "forged-val", pathname: "/cv" }), null);
-  assert.equal(
-    visitToReport({ ...base, headers: new Headers({ "user-agent": BROWSER_UA, "next-router-prefetch": "1" }), pathname: "/cv" }),
-    null
-  );
-  assert.equal(visitToReport({ ...base, headers: new Headers({ "user-agent": "curl/8.0" }), pathname: "/cv" }), null);
 });
