@@ -18,6 +18,7 @@ export default function SiteFooter({
   const locale = pathname.startsWith("/fr") ? "fr" : "en";
   const t = getMessages(locale);
   const contactHref = locale === "fr" ? "/fr/contact" : "/contact";
+  const privacyHref = locale === "fr" ? "/fr/privacy" : "/privacy";
   const city = location.split(" — ")[0];
 
   return (
@@ -27,6 +28,9 @@ export default function SiteFooter({
         <div className="flex items-center gap-5">
           <Link href={contactHref} className="hover:text-signal">
             {t.footer.contact}
+          </Link>
+          <Link href={privacyHref} className="hover:text-signal">
+            {t.footer.privacy}
           </Link>
           <a
             href={linkedin}

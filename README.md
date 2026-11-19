@@ -28,9 +28,13 @@ VOYAGEAI_API_KEY=pa-...
 # in-memory fallback used in local dev / CI.
 # UPSTASH_REDIS_REST_URL=https://xxxxx.upstash.io
 # UPSTASH_REDIS_REST_TOKEN=...
+# Optional: Lead CRM link tracking (see "Lead CRM link tracking" below).
+# Without both, /r/<code> still redirects but reports nothing.
+# CRM_URL=https://crm.example.com          # the CRM's APP_BASE_URL
+# CRM_TRACKING_SECRET=...                  # same value as the CRM's PORTFOLIO_TRACKING_SECRET (openssl rand -base64 32)
 ```
 
-All four keys are Vercel environment variables. The two optional `UPSTASH_REDIS_REST_*` values are too. Nothing is exposed to the browser; there are no `NEXT_PUBLIC_*` secrets.
+All four keys are Vercel environment variables. The two optional `UPSTASH_REDIS_REST_*` values and the optional `CRM_URL` / `CRM_TRACKING_SECRET` pair are too. Nothing is exposed to the browser; there are no `NEXT_PUBLIC_*` secrets.
 
 ## Local development
 
@@ -71,12 +75,23 @@ Chat history is kept in client-side React state only — no visitor data is pers
   - **In-memory fallback:** if those two env vars are absent (local dev, CI, tests), it falls back to a per-function-instance sliding window (20 req/min) with LRU eviction. Zero setup, no new env vars — but per-instance state, so it under-counts abuse across concurrent instances on Vercel.
 - The chat runs on the Gemini API **free tier**, so a burst of abuse costs nothing — it just returns `429`s from Google once the daily/rate quota is hit. If you ever move to a paid Gemini key, set a budget alert in Google AI Studio / Google Cloud billing before shipping publicly. Nothing to configure in this repo.
 
+## Lead CRM link tracking
+
+Outreach messages from the owner's private Lead CRM carry a discreet personal link, `https://alexandrehennequin.com/r/<code>`, where `<code>` is 10 lowercase hex characters, one per contact. Code: `lib/crmTracking.ts`, `app/r/[code]/route.ts`.
+
+- **`/r/<code>`** always answers `302` to the home page (the destination never carries the code). For a valid code and a non-bot user agent, after the response is sent (`after()`), it reports a `click` to the CRM. Invalid codes, bots/link scanners and `HEAD` requests are redirected without a report. No cookie is set and later page views are not reported.
+- **Report:** `POST <CRM_URL>/api/portfolio-events` with JSON `{ eventId, code, kind: "click" }`, header `X-Portfolio-Timestamp` (Unix seconds) and `X-Portfolio-Signature` = hex HMAC-SHA256 of `<timestamp>.<raw body>` keyed with `CRM_TRACKING_SECRET`. 3-second timeout; every failure is ignored, so a down CRM or an unset `CRM_URL` / `CRM_TRACKING_SECRET` never delays or breaks the redirect.
+- **Privacy:** no cookie, open tracking, pixels or third-party trackers. The privacy page (`/privacy`, `/fr/privacy`, linked from the footer and from every first CRM message) describes this; keep it in step with any change here.
+- **Secret:** set `CRM_TRACKING_SECRET` (32+ characters) only as a server-side Vercel env var, never as `NEXT_PUBLIC_*`, and to the same value as the CRM's `PORTFOLIO_TRACKING_SECRET`.
+
+`npm test` runs the unit tests (`node --test`): code format, signature scheme, and redirect behaviour with the CRM down or unconfigured.
+
 ## Deploy to Vercel
 
 1. Push to the repo and import into Vercel (or `vercel deploy`).
 2. Add the four env vars above in Project → Settings → Environment Variables.
 3. Run `npm run ingest` once (with the same env vars) to populate the vector index — from your machine or a CI job.
-4. Deploy. `app/api/chat` is the only serverless route; everything else is static.
+4. Deploy. `app/api/chat` and `app/r/[code]` are the serverless routes; everything else is static.
 
 ## Content
 

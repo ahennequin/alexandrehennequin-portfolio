@@ -24,6 +24,7 @@ export const MESSAGES = {
       contact: "contact",
       linkedin: "linkedin",
       github: "github",
+      privacy: "privacy",
     },
     home: {
       viewCv: "View CV",
@@ -78,6 +79,11 @@ export const MESSAGES = {
       note: "Available for remote and on-site engagements across France and Europe.",
       schedule: "Schedule a call",
     },
+    privacy: {
+      eyebrow: "Privacy",
+      title: "Privacy policy",
+      updated: "Last updated: 19 November 2026",
+    },
     chat: {
       title: "Portfolio assistant",
       subtitle: "RAG over this site's content",
@@ -112,6 +118,7 @@ export const MESSAGES = {
       contact: "contact",
       linkedin: "linkedin",
       github: "github",
+      privacy: "confidentialité",
     },
     home: {
       viewCv: "Voir le CV",
@@ -165,6 +172,11 @@ export const MESSAGES = {
       github: "GitHub",
       note: "Disponible pour des missions à distance et sur site, partout en France et en Europe.",
       schedule: "Planifier un appel",
+    },
+    privacy: {
+      eyebrow: "Confidentialité",
+      title: "Politique de confidentialité",
+      updated: "Dernière mise à jour : 19 novembre 2026",
     },
     chat: {
       title: "Assistant du portfolio",
